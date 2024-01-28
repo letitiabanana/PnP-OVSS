@@ -1,6 +1,6 @@
 # Open-Vocab-Semantic-Segmentation
 
-[!]Only the code of PnP_OVSS + BLIP for Pascal Context and Cityscapes is provided here. I haven't clean my code yet so the code is still messy sryyyy~~
+[!]Only the code of PnP_OVSS + BLIP for Pascal Context and Cityscapes is provided here. I haven't clean up my code yet so the structure is still messy sryyyy~~
 
 ## Download LAVIS
 Build LAVIS environment following the instruction [here](https://www.google.com](https://github.com/salesforce/LAVIS/tree/ac8fc98c93c02e2dfb727e24a361c4c309c8dbbc?tab=readme-ov-file#installation)https://github.com/salesforce/LAVIS/tree/ac8fc98c93c02e2dfb727e24a361c4c309c8dbbc?tab=readme-ov-file#installation)
@@ -12,6 +12,10 @@ git clone https://github.com/salesforce/LAVIS.git
 cd LAVIS 
 pip install -e .
 ```
+## Download Gradient_Free_Optimizers_master
+
+Download [Gradient_Free_Optimizers_master]https://github.com/SimonBlanke/Gradient-Free-Optimizers and put it under LAVIS (This is for Random Search, Can ignore it for now)
+
 
 ## Download datasets
 Pascal VOC <br>
@@ -20,6 +24,24 @@ COCO Object <br>
 COCO Stuff <br>
 ADE20K <br>
 Cityscapes: Download dataset following instruction from [mmsegmentation](https://github.com/open-mmlab/mmsegmentation/blob/main/docs/en/user_guides/2_dataset_prepare.md#pascal-context) <br>
+
+
+```
+LAVIS
+├── mmsegmentation
+│   ├── VOCdevkit
+│   │   ├── VOC2010
+│   │   │   ├── JPEGImages
+│   │   │   ├── SegmentationClassContext
+├── Cityscapes
+│   ├── leftImg8bit
+│   │   ├── train
+│   │   ├── val
+│   ├── gtFine
+│   │   ├── train
+│   │   ├── val
+
+```
 
 ## Replace the config file and GradCAM file of BLIP
 Replace /home/user/LAVIS/lavis/models/blip_models/blip_image_text_matching.py with the file in this repository <br>
@@ -32,7 +54,7 @@ For COCO Object and COCO stuff <br>
 `bash pnp_get_attention_halving.sh`
 
 For Cityscapes <br>
-` bash Cityscapes_halving.sh`
+`bash Cityscapes_halving.sh`
 
 
 ### For Gaussian Blur, Dense CRF and evalutaion
