@@ -14,7 +14,7 @@ pip install -e .
 ```
 ## Download Gradient_Free_Optimizers_master
 
-Download [Gradient_Free_Optimizers_master]https://github.com/SimonBlanke/Gradient-Free-Optimizers and put it under LAVIS (This is for Random Search, Can ignore it for now)
+Download [Gradient_Free_Optimizers_master](https://github.com/SimonBlanke/Gradient-Free-Optimizers) and put it under LAVIS (This is for Random Search. Can ignore it for now)
 
 
 ## Download datasets
@@ -57,7 +57,7 @@ For Cityscapes <br>
 `bash Cityscapes_halving.sh`
 
 
-### For Gaussian Blur, Dense CRF and evalutaion
+### For Gaussian Blur, Dense CRF and Mask Evalutaion
 
 For COCO Object and COCO stuff <br>
 `New_eval_cam_CRF.sh`
