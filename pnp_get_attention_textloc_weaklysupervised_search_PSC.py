@@ -16,7 +16,7 @@ from lavis.processors import load_processor
 from matplotlib import pyplot as plt
 from lavis.models.blip_models.blip_image_text_matching import compute_gradcam, compute_gradcam_ensemble
 import numpy as np
-from Dataset_Cityscapes import Cityscapes
+from Dataset_coco_textloc import CocoDetection
 from Dataset_PSC import PascalContext
 from pathlib import Path
 from PIL import Image
@@ -31,8 +31,7 @@ import pylab
 
 import utils
 import os
-# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+
 import torch.multiprocessing as mp
 from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -59,7 +58,6 @@ from sklearn import linear_model
 
 # for edge map
 import cv2
-from argparse import Namespace
 import matplotlib.cm as cm
 # os.environ['CUDA_VISIBLE_DEVICES']= '1'
 print("Number of cpu : ", multiprocessing.cpu_count())
@@ -208,7 +206,17 @@ def get_clipsim_for_pnmask(final_input_clip, text_for_clip, model_clip, gt_class
 
     return avg_negoverpos_clipsim, pos_win_sum
 
-
+#
+# def infer_clipsim_from_clip(final_input_clip, text_for_clip, model_clip):
+#     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#     sample = {"image": final_input_clip.to(device), "text_input": text_for_clip}
+#     # print("248 check clip input", final_input_clip.shape, len(text_for_clip))
+#     scores_batchimg_from_clip = cal_clip_score(sample,
+#                                             model_clip.to(device)).detach().cpu().numpy()  # dim  img(gtclassnum*2) by class
+#     # print("314", scores_batchimg_from_clip.shape)
+#
+#
+#     return scores_batchimg_from_clip
 
 
 
@@ -221,6 +229,7 @@ def read_list(caption_path):
     with open(caption_path, 'rb') as fp:
         n_list = pickle.load(fp)
         return n_list
+
 
 
 def convert_from_image_to_cv2(img: Image) -> np.ndarray:
@@ -246,16 +255,18 @@ def captions_text_loc(args,  model_textloc, data_loader, vis_processors_textloc,
     for batch_id, (norm_img_sizes, norm_img0s, img0s, paths, img_ids, label) in tqdm(
             enumerate(metric_logger.log_every(data_loader, print_freq)), desc='coco val captions_text_loc:'):
 
-        print("116 batch stats", norm_img0s.shape, type(paths), img0s.shape,
-              img_ids)  # torch.Size([batch_size, 384, 384, 3]), <class 'tuple'>,  torch.Size([batch_size, 3, 384, 384]),  10
+        # print("116 batch stats", norm_img0s.shape, type(paths), img0s.shape,
+        #       img_ids)  # torch.Size([batch_size, 384, 384, 3]), <class 'tuple'>,  torch.Size([batch_size, 3, 384, 384]),  10
 
+        if not "2008_000002" in img_ids[0]:
+            continue
 
         nms = [i for i in cats.values()]
 
         label_ascap_list = []  # for label as caption batch iterations
         gt_class_name_list = []  # for pnpvqa and label as caption, input individual gt class name for each image to recognize the respective label tokendsfor
         for idx, img_id in enumerate(img_ids):
-            # img_id = int(img_id)
+            img_id = int(img_id)
             # print("121 img_id", img_id, type(img_id))
 
             gt_class_name = []
@@ -304,7 +315,6 @@ def captions_text_loc(args,  model_textloc, data_loader, vis_processors_textloc,
                         print("run highest att again", img_id)
                         if args.max_att_block_num == 8 and img_id == "232684" and args.prune_att_head == "11":
                             print("261888_layer8_head11, run highest att again")
-
                         run_batch += 0
                     elif not os.path.exists(attention_path):
                         print("attention_path not exist for drop iter", drop_iter, ", run att")
@@ -314,6 +324,8 @@ def captions_text_loc(args,  model_textloc, data_loader, vis_processors_textloc,
                 if run_batch > 0:
 
                     print("  185 drop iter", drop_iter)
+                    toc1 = time.perf_counter()
+
                     if drop_iter > 0:
 
                         drop_patch_img_list = []
@@ -339,6 +351,8 @@ def captions_text_loc(args,  model_textloc, data_loader, vis_processors_textloc,
                     else:
                         norm_imgs = norm_img0s.detach().clone()
                         imgs = img0s.detach().clone()
+                    tic1 = time.perf_counter()
+                    print(f"Time: Count Time I Drop patch in {toc1 - tic1:0.4f} seconds")
                     imgs_in = vis_processors_textloc["eval"](imgs)  # Normalize the images
                     # imgs_clip_in = vis_processors_clip["eval"](imgs) # after normalize not range 0-1, cannot perform edge detection, so not using normailzation for now
                     imgs_clip_in = None
@@ -384,7 +398,6 @@ def drop_image_patch_with_highest_att(args, drop_iter, vis_processors_textloc, n
             norm_img0[max_x:max_x + 16, max_y:max_y + 16, :] = 0
 
     return norm_img0, img0
-
 
 
 def match_classname_in_cleancaption(classname, token_id_iter, model_textloc):
@@ -440,7 +453,6 @@ def match_classname_in_cleancaption(classname, token_id_iter, model_textloc):
         tmp_word_id.pop(tmp_word.index(0))
     return tmp_word_id
 
-
 def get_grad_cam_labelascaption(batch_id, drop_iter, args, imgs, imgs_clip_in, norm_img_sizes, norm_imgs, img_ids,
                                 gt_class_name_list, captions,
                                 model_clip, vis_processors_clip, model_textloc, text_processors_textloc, rank, nms,
@@ -459,8 +471,14 @@ def get_grad_cam_labelascaption(batch_id, drop_iter, args, imgs, imgs_clip_in, n
     # print("185 imgs.shape, txt_tokens.shape", imgs.shape, txt_tokens.attention_mask.shape)
     tic_grad1 = time.perf_counter()
     # if args.ensemble_blocks:
-    gradcam_ensemble, cam_ensemble, output = compute_gradcam_ensemble(args, model_textloc.module, imgs.to(rank), captions,
+
+    gradcam_ensemble,  cam_ensemble, output = compute_gradcam_ensemble(args, model_textloc.module, imgs.to(rank), captions,
                                                         txt_tokens, drop_iter)
+    toc_grad1 = time.perf_counter()
+    print(f"Time: Count TIME II GRADCAM {toc_grad1 - tic_grad1:0.4f} seconds")
+    # else:
+    #     gradcam, output, gradcam_byatthead_list, cam_mean, cam_byatthead_list = compute_gradcam(
+    #         model_textloc.module, imgs.to(rank), captions, txt_tokens, block_num=args.max_att_block_num - 1)
     if args.cal_token_sim_forall_layerhead:
         for layer in range(1, 13):
             for head in range(12):
@@ -469,8 +487,7 @@ def get_grad_cam_labelascaption(batch_id, drop_iter, args, imgs, imgs_clip_in, n
 
 
     loss_for_bacth = softmax(output.cpu().detach().numpy(), axis=0)[:, 1]  # output[:, 1]
-    toc_grad1 = time.perf_counter()
-    print(f"Time: run 12 blocks 12 head attention for a batch of images use {toc_grad1 - tic_grad1:0.4f} seconds")
+
 
     img_shape = imgs[0].shape[1:]
     # print("450 img shape", img_shape) #[768,768]
@@ -484,7 +501,6 @@ def get_grad_cam_labelascaption(batch_id, drop_iter, args, imgs, imgs_clip_in, n
         '''norm img for one img '''
         norm_img = norm_imgs[img_idx, :, :, :].squeeze(0).numpy()
 
-
         '''save clip sim for drop > 1 and get gradcam id '''
         gradcam_id_byclass_dict = {}
         clipsim_save = {}
@@ -497,8 +513,11 @@ def get_grad_cam_labelascaption(batch_id, drop_iter, args, imgs, imgs_clip_in, n
             gradcam_id_byclass_dict[f"{class_name}"] = gradcam_id_list
             cls_prob_idx = gt_class_name.index(class_name)
 
+
         """#### GradCam for each token"""
 
+
+        # for max_block_num in range(12):
         max_block_num = args.max_att_block_num
         if args.ensemble_blocks is not None and "saveall" in args.ensemble_blocks:
             # # gradcam = np.zeros(gradcam_ensemble[0].shape)
@@ -525,8 +544,8 @@ def get_grad_cam_labelascaption(batch_id, drop_iter, args, imgs, imgs_clip_in, n
                                                                cam_type="gradcam")
 
 
-
         else:
+
             if args.prune_att_head:
 
                 max_block_num = args.max_att_block_num
@@ -537,17 +556,18 @@ def get_grad_cam_labelascaption(batch_id, drop_iter, args, imgs, imgs_clip_in, n
                                                            img_idx, drop_iter, norm_img, loss_for_bacth,
                                                            img_shape, cats, nms, att_head=att_head,
                                                            max_block_num=max_block_num,
-                                                           cam_att=gradcam_ensemble[max_block_num - 1][att_head][
+                                                           cam_att=cam_ensemble[max_block_num - 1][att_head][
                                                                img_idx],
-                                                           cam_type="gradcam")
+                                                           cam_type="cam")
+                # max_block_num = args.max_att_block_num
+                # att_head = int(args.prune_att_head)
                 # att_loss_record = save_img_union_attention(args, gradcam_id_byclass_dict, gt_class_name,
                 #                                            att_loss_record,
                 #                                            img_ids,
                 #                                            img_idx, drop_iter, norm_img, loss_for_bacth,
                 #                                            img_shape, cats, nms, att_head=att_head,
                 #                                            max_block_num=max_block_num,
-                #                                            cam_att=gradcam_ensemble[0][0][
-                #                                                img_idx],
+                #                                            cam_att=gradcam_ensemble[0][0][img_idx],
                 #                                            cam_type="gradcam")
 
     toc1 = time.perf_counter()
@@ -577,6 +597,7 @@ def get_grad_cam_labelascaption(batch_id, drop_iter, args, imgs, imgs_clip_in, n
     print(f"Time: save all matching max blocks attention for one batch of images use {toc_all - tic_all:0.4f} seconds")
 
 
+# saving attention map and index for patches to drop
 def save_img_union_attention(args, gradcam_id_byclass_dict, gt_class_name, att_loss_record, img_ids, img_idx, drop_iter,
                              norm_img, loss_for_bacth, img_shape, cats, nms, att_head, max_block_num=None, cam_att=None,
                              cam_type="gradcam"):
@@ -872,24 +893,58 @@ def main(rank, world_size, args):
     ddp_setup(args, rank, args.world_size)
 
     torch.cuda.set_device(rank)
+    batch_control = 0
 
+    # dataDir = '/home/letitiabanana/LAVIS/coco'
+    # dataDir = '/home/letitiabanana/BLIP-main/coco/'
+    # dataType_stuff = 'stuff_val2017'
+    # annFile_stuff = '/home/letitiabanana/LAVIS/coco/annotations/{}.json'.format(dataType_stuff)
+    # dataType_thing = 'val2017'
+    # annFile_thing = '/home/letitiabanana/LAVIS/coco/annotations/instances_{}.json'.format(dataType_thing)
+    #
+    #
+    # # initialize COCO api for instance annotations
+    # coco_stuff = COCO(annFile_stuff)
+    # # display COCO categories and supercategories
+    # cats_stuff = coco_stuff.loadCats(coco_stuff.getCatIds())
+    # nms_stuff = [cat['name'] for cat in cats_stuff]
+    #
+    # coco_thing = COCO(annFile_thing)
+    # # display COCO categories and supercategories
+    # cats_thing = coco_thing.loadCats(coco_thing.getCatIds())
+    # nms_thing = [cat['name'] for cat in cats_thing]
+    # # print('COCO categories: \n{}\n'.format(' '.join(nms)))
+    # cats = cats_thing  # + cats_stuff
+    # nms = nms_thing  # + nms_stuff
+    # print("1492", type(coco_thing), type(cats_thing), type(nms_thing))
+    # print("1501  len(cats), len(nms)", len(cats), len(nms))
+    # breakpoint()
 
     """### Load coco images into batches"""
 
     """#### Load text localization model and preprocessors"""
 
+    cats = {1: 'aeroplane', 2:'bag',3 :'bed', 4:'bedclothes',
+    5:'bench', 6:'bicycle', 7:'bird', 8:'boat', 9:'book', 10:'bottle',
+    11:'building',12 :'bus', 13:'cabinet', 14:'car', 15:'cat', 16:'ceiling',
+    17:'chair',18 :'cloth', 19:'computer', 20:'cow', 21:'cup', 22:'curtain',23 :'dog',
+    24:'door', 25:'fence', 26:'floor', 27:'flower', 28:'food', 29:'grass', 30:'ground',
+    31:'horse', 32:'keyboard', 33:'light', 34:'motorbike', 35:'mountain',
+    36:'mouse', 37:'person', 38:'plate', 39:'platform', 40:'pottedplant', 41:'road',
+    42:'rock', 43:'sheep', 44:'shelves', 45:'sidewalk',46: 'sign', 47:'sky', 48:'snow',
+    49:'sofa', 50:'table', 51:'track', 52:'train', 53:'tree', 54:'truck',
+    55:'tvmonitor', 56:'wall', 57:'water', 58:'window', 59:'wood'}
 
-    cats = {7:'road',  8:'sidewalk', 9:'parking',  10:'rail track', 11:'building',  12:'wall', 13:'fence',  14:'guard rail',
-            15:'bridge', 16:'tunnel',  17:'pole',  18:'polegroup', 19:'traffic light',  20:'traffic sign',  21:'vegetation',
-            22:'terrain',  23:'sky',  24:'person',  25:'rider',  26:'car', 27:'truck',  28:'bus', 29:'caravan',  30:'trailer',
-            31:'train',  32:'motorcycle',  33:'bicycle'}
 
 
     model_textloc, vis_processors_textloc, text_processors_textloc = load_model_and_preprocess(
         "blip_image_text_matching", "large", device=rank, is_eval=True)
+    # model_clip, vis_processors_clip  , txt_processors_clip = load_model_and_preprocess("clip_feature_extractor", model_type="ViT-L-14-336",
+    #                                                                   is_eval=True, device=rank)
 
-    test_data = Cityscapes(args, root="./Cityscapes", split='val')
 
+    imageDir = "/home/letitiabanana/LAVIS/mmsegmentation/data/VOCdevkit/VOC2010"
+    test_data = PascalContext(imageDir, split="val", args=args,  device=rank)  ##add arguments args, annFile_thing, getClassName, cats, vis_processors_clip
 
     torch.manual_seed(10000)
     data_loader_test = torch.utils.data.DataLoader(
@@ -902,11 +957,6 @@ def main(rank, world_size, args):
     )
 
     model_textloc = DDP(model_textloc, device_ids=[rank])
-    # model_clip = DDP(model_clip, device_ids=[rank])
-    #
-    # if args.ensemble_blocks:
-    #     # as we are selecting all the layer and head here, cannot specify the layer and head to run get_final_poswin_and_clipsimratio, so skip the step
-    #     # therefore in this step we do not calculate reward.
 
     captions_text_loc(args, model_textloc, data_loader_test,
                       vis_processors_textloc, text_processors_textloc, rank, cats)
@@ -919,7 +969,7 @@ def main(rank, world_size, args):
 
 
 def Search(para):
-
+    from argparse import Namespace
     save_path = "Cbatch_Eval_test_ddp_0929_combinelabelascaption_byatthead_768_cocofinetune_zeroshot_cocothing_search_checksum"
     args = Namespace(max_att_block_num=int(para["layer"]), prune_att_head=str(para["head"]),
                      final_att_threshold=para["min_att"], batch_size=1, img_size=336, drop_iter=1, save_path=save_path,
@@ -1017,7 +1067,12 @@ if __name__ == "__main__":
     world_size = args.world_size  # torch.cuda.device_count()
 
 
-    # for ramdom search - hyperparameter tuning
+
+    # model_textloc = DDP(model_textloc, device_ids=[rank])
+    # model_clip = DDP(model_clip, device_ids=[rank])
+
+
+    #for ramdom search - hyperparameter tuning
     if args.search:
         # torch.cuda.set_device(rank)
 
@@ -1106,7 +1161,5 @@ if __name__ == "__main__":
         # )
         # # print("1508", opt)
         # opt.search(Search, n_iter=192)
-
     else:
         mp.spawn(main, args=(world_size, args), nprocs=world_size)
-    ### gather all the att loss record from each gpu
