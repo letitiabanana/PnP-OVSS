@@ -25,6 +25,9 @@ Might also need to downgrade transformer
 
 Download [Gradient_Free_Optimizers_master](https://github.com/SimonBlanke/Gradient-Free-Optimizers) and put it under LAVIS (This is for Random Search. Can ignore it for now)
 
+## Download pydensecrf
+
+Git clone [pydensecrf](https://github.com/lucasb-eyer/pydensecrf)) and put it under LAVIS 
 
 ## Download datasets
 Pascal VOC <br>
