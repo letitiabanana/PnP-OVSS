@@ -18,17 +18,12 @@ Replace /home/user/LAVIS/lavis/configs/models/blip_itm_large.yaml with the file 
 ## Run scripts
 ### For saving the GradCAM maps and index of patches to drop for each round of Salience Drop
 For COCO Object and COCO stuff <br>
-<html>
-<body>
-  <p>bash pnp_get_attention_halving.sh</p>
-</body>
-</html>
+`bash pnp_get_attention_halving.sh`
 
-'''
 For Cityscapes <br>
-''' 
+` 
 bash Cityscapes_halving.sh
-'''
+`
 ### For Gaussian Blur, Dense CRF and evalutaion
 For COCO Object and COCO stuff <br>
 ''' 
