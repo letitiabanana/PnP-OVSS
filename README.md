@@ -53,7 +53,7 @@ LAVIS
 ```
 
 ## Replace the config file and GradCAM file of BLIP
-Download all the files in this repository and put them under LAVIS
+Download all the files in this repository and put them under LAVIS <br>
 Replace /home/user/LAVIS/lavis/models/blip_models/blip_image_text_matching.py with the file in this repository <br>
 Replace /home/user/LAVIS/lavis/configs/models/blip_itm_large.yaml with the file in this repository <br>
 Replace /home/user/LAVIS/lavis/models/med.py with the file in this repository <br>
@@ -102,7 +102,7 @@ CUDA_VISIBLE_DEVICES=3 python pnp_get_attention_textloc_weaklysupervised_search_
 --save_path New_Cbatch_Eval_test_ddp_0126_448_flickrfinetune_zeroshot_halvingdrop_Cityscapes \
 --master_port 10990 --gen_multiplecap_withpnpvqa label --world_size 1 \
 --del_patch_num sort_thresh005 \
---img_size 448 \
+--img_size 768 \
 --batch_size 2 \
 --max_att_block_num 8 --drop_iter 5 --prune_att_head 9 --sort_threshold 0.05
 ```
