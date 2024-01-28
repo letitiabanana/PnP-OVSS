@@ -2,6 +2,10 @@
 
 [!]Only the code of PnP_OVSS + BLIP for Pascal Context and Cityscapes is provided here. I haven't clean up my code yet so the structure is still messy sryyyy~~
 
+## System 
+CUDA Version: 11.7  <br>
+GPU Memory: 49140MiB <br>
+
 ## Download LAVIS
 Build LAVIS environment following the instruction [here](https://www.google.com](https://github.com/salesforce/LAVIS/tree/ac8fc98c93c02e2dfb727e24a361c4c309c8dbbc?tab=readme-ov-file#installation)https://github.com/salesforce/LAVIS/tree/ac8fc98c93c02e2dfb727e24a361c4c309c8dbbc?tab=readme-ov-file#installation)
 ```
@@ -12,6 +16,7 @@ git clone https://github.com/salesforce/LAVIS.git
 cd LAVIS 
 pip install -e .
 ```
+
 ## Download Gradient_Free_Optimizers_master
 
 Download [Gradient_Free_Optimizers_master](https://github.com/SimonBlanke/Gradient-Free-Optimizers) and put it under LAVIS (This is for Random Search. Can ignore it for now)
@@ -44,6 +49,7 @@ LAVIS
 ```
 
 ## Replace the config file and GradCAM file of BLIP
+Download all the files in this repository and put them under LAVIS
 Replace /home/user/LAVIS/lavis/models/blip_models/blip_image_text_matching.py with the file in this repository <br>
 Replace /home/user/LAVIS/lavis/configs/models/blip_itm_large.yaml with the file in this repository <br>
 
