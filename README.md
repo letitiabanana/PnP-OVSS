@@ -78,3 +78,15 @@ For COCO Object and COCO stuff <br>
 
 For Cityscapes <br>
 `bash New_eval_cam_Cityscapes.sh`
+
+## Modify Hyperparameters in bash files
+```
+CUDA_VISIBLE_DEVICES=3 python pnp_get_attention_textloc_weaklysupervised_search_Cityscapes.py \
+--save_path New_Cbatch_Eval_test_ddp_0126_448_flickrfinetune_zeroshot_halvingdrop_Cityscapes \
+--master_port 10990 --gen_multiplecap_withpnpvqa label --world_size 1 \
+--del_patch_num sort_thresh005 \
+--img_size 448 \
+--batch_size 2 \
+--max_att_block_num 8 --drop_iter 5 --prune_att_head 9 --sort_threshold 0.05
+```
+To change image size, you may also need to modify the image size in /home/user/LAVIS/lavis/configs/models/blip_itm_large.yaml
