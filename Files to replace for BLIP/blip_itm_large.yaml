@@ -1,0 +1,33 @@
+ # Copyright (c) 2022, salesforce.com, inc.
+ # All rights reserved.
+ # SPDX-License-Identifier: BSD-3-Clause
+ # For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+
+model:
+  arch: blip_image_text_matching
+
+  load_finetuned: True
+  finetuned: "https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_large_retrieval_flickr.pth"
+#  pretrained: "https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_capfilt_large.pth"
+
+  # vit encoder
+  vit_type: "large"
+  vit_grad_ckpt: False
+  vit_ckpt_layer: 0
+
+  image_size: 448
+
+  # bert config
+  med_config_path: "configs/models/med_large_config.json"
+
+  embed_dim: 256
+
+preprocess:
+    vis_processor:
+        eval:
+          name: "blip_image_eval"
+          image_size: 768
+    text_processor:
+        eval:
+          name: "blip_caption"
+ 
