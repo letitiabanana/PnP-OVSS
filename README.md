@@ -1,6 +1,6 @@
 # Test-code
 
-:smiley: Only the code for BLIP with Pascal Context and Cityscapes is provided here. I haven't clean up my code yet so the structure is still messy sryyyy~~
+:exclamation: Only the code for BLIP with Pascal Context and Cityscapes is provided here. I haven't clean up my code yet so the structure is still messy sryyyy~~:cry::cry:
 
 ## System 
 CUDA Version: 11.7  <br>
