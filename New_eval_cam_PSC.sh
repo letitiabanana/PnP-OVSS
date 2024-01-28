@@ -1,5 +1,5 @@
 python New_eval_cam_pascalcontext.py \
---cam_out_dir ./ALBEF_Cbatch_Eval_test_ddp_1122_768_flickrfinetune_zeroshot_halvingdrop_PSC \
+--cam_out_dir ./Cbatch_Eval_test_ddp_1111_768_flickrfinetune_zeroshot_halvingdrop_PSC \
 --save_path ./Pascalcontext_IOU/Pascalcontext_IOU_layer2head9_dropiter5_768_flickrfinetune_zeroshot_attthresh15_noblurnocrf \
 --cam_threshold 0.15 --drop_patch_eval halving \
 --img_size 768 \
