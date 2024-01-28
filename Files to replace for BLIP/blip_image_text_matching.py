@@ -384,7 +384,7 @@ def compute_gradcam(model, visual_input, text_input, tokenized_text, block_num=6
 
 def compute_gradcam_ensemble(args, model, visual_input, text_input, tokenized_text, drop_iter):
     # 改 一次forward , 看register hook
-    for block_num in range(7, 8):
+    for block_num in range(0, 12):
         # 8th layer 1-12 layers so select the 7th starting from 0
         model.text_encoder.base_model.base_model.encoder.layer[
             block_num
@@ -407,7 +407,7 @@ def compute_gradcam_ensemble(args, model, visual_input, text_input, tokenized_te
     patch_num = int(args.img_size / 16)
     # print("40 patch_num", patch_num)
     # for block_num in range(int(block_num_range.split("-")[0]), int(block_num_range.split("-")[1])+1):
-    for block_num in range(7,8):
+    for block_num in range(0,12):
         #8th layer 1-12 layers so select the 7th starting from 0
         with torch.inference_mode():
 
@@ -427,7 +427,7 @@ def compute_gradcam_ensemble(args, model, visual_input, text_input, tokenized_te
                 0).reshape(visual_input.size(0), 12, -1, patch_num, patch_num) * mask[:, :, :cams.shape[2], :, :]
             gradcams[gradcams<0] = 0
             gradcam_byatthead_list = []
-            for i in range(9,10):
+            for i in range(12):
                 gradcam_byatthead_list.append(
                     gradcams[:, i, 1:, :, :].cpu().detach())  # 1: on the third position is for deleting the enc token,
 
