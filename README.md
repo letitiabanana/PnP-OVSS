@@ -56,9 +56,9 @@ LAVIS
 Download all the files in this repository and put them under LAVIS
 Replace /home/user/LAVIS/lavis/models/blip_models/blip_image_text_matching.py with the file in this repository <br>
 Replace /home/user/LAVIS/lavis/configs/models/blip_itm_large.yaml with the file in this repository <br>
-Replace /home/user/LAVIS/lavis/models/blip_models/med.py with the file in this repository <br>
-Replace /home/user/LAVIS/lavis/models/blip_models/vit.py with the file in this repository <br>
-Replace /home/user/LAVIS/lavis/models/blip_models/base_model.py with the file in this repository <br>
+Replace /home/user/LAVIS/lavis/models/med.py with the file in this repository <br>
+Replace /home/user/LAVIS/lavis/models/vit.py with the file in this repository <br>
+Replace /home/user/LAVIS/lavis/models/base_model.py with the file in this repository <br>
 Replace /home/user/LAVIS/lavis/processors/blip_processors.py with the file in this repository <br>
 
 ## Run scripts
