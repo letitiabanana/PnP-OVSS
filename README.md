@@ -17,7 +17,7 @@ git clone https://github.com/salesforce/LAVIS.git
 cd LAVIS 
 pip install -e .
 ```
-This would download the newest torch, may need to modify torch version based on your cuda version.
+This would download the newest torch, may need to modify torch version based on your cuda version. <br>
 Might also need to downgrade transformer
 `pip install transformers==4.25`
 
