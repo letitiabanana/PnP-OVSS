@@ -1,4 +1,4 @@
-# Open-Vocab-Semantic-Segmentation
+# Test-code
 
 [!]Only the code for BLIP with Pascal Context and Cityscapes is provided here. I haven't clean up my code yet so the structure is still messy sryyyy~~
 
