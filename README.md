@@ -1,6 +1,6 @@
 # Open-Vocab-Semantic-Segmentation
 
-[!]Only the code of PnP_OVSS + BLIP for Pascal Context and Cityscapes is provided here. I haven't clean up my code yet so the structure is still messy sryyyy~~
+[!]Only the code for BLIP with Pascal Context and Cityscapes is provided here. I haven't clean up my code yet so the structure is still messy sryyyy~~
 
 ## System 
 CUDA Version: 11.7  <br>
@@ -78,6 +78,23 @@ For COCO Object and COCO stuff <br>
 
 For Cityscapes <br>
 `bash New_eval_cam_Cityscapes.sh`
+
+The output would have the following structure
+```
+LAVIS
+├── New_Cbatch_Eval_test_ddp_0126_768_flickrfinetune_zeroshot_halvingdrop_Cityscapes
+│   ├── gradcam
+│   │   ├── max_att_block_num8_del_patch_numsort_thresh005
+│   │   │   ├── drop_iter0
+│   │   │   │   ├──img_att_forclasses (attention map)
+│   │   │   │   ├──Union_check0928    (visualization of attention map)
+│   │   │   │   ├──highest_att_save   (index of patches to be dropped)
+│   │   │   ├── drop_iter1
+│   │   │   ├── drop_iter2
+│   │   │   ├── drop_iter3
+│   │   │   ├── drop_iter4
+```
+
 
 ## Modify Hyperparameters in bash files
 ```
