@@ -20,7 +20,7 @@ Replace /home/user/LAVIS/lavis/configs/models/blip_itm_large.yaml with the file 
 For COCO Object and COCO stuff <br>
 <html>
 <body>
-<p>bash pnp_get_attention_halving.sh</p>
+  <p>bash pnp_get_attention_halving.sh</p>
 </body>
 </html>
 
