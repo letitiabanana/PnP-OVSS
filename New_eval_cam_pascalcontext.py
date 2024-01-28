@@ -259,45 +259,12 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
     for eval_i, id in tqdm(enumerate(tmp_eval_list)):
         if not "2008_000002" in id:
             continue
-        # gt_file = os.path.join(args.gt_root, '%s.png' % id)
-        # gt = np.array(Image.open(gt_file)).astype(np.uint8)
-        # breakpoint()
-        # labels.append(gt)
-        # if id not in ['2009_004044','2009_004033','2009_004022','2009_004016','2009_003992','2009_003951','2009_003908','2009_003884','2009_003863','2009_003855','2009_003821','2009_003771','2009_003756','2009_003751','2009_003642','2009_003606','2009_003589','2009_003549','2009_003509','2009_003467','2009_003460']:
-        #     continue
-        # if id != "2010_005428":
-        #     continue
+
         mask = np.float32(Image.open(os.path.join("/home/letitiabanana/LAVIS/mmsegmentation/data/VOCdevkit/VOC2010/SegmentationClassContext/", id + '.png')))
         # F.array(np.array(mask), cpu(0)).astype('int32')
 
         norm_mask = np.float32(mask)
         label = np.unique(norm_mask).tolist()
-        # for lb in label:
-        #     if int(lb)>0:
-        #         print(id, lb, cats[int(lb)])
-        # continue
-
-        # if eval_i < 100:
-        #     prediction_mask_list_pos = []
-        #     for i in label:
-        #         pos = norm_mask == i
-        #         save_mask = pos.astype('int32')
-        #         # print("1249", complete_img.shape[2:], prediction_mask_pos[i, :].shape, skimage_transform.resize(prediction_mask_pos[i, :], complete_img.shape[2:], order=0, mode="constant").shape)
-        #         prediction_mask_list_pos.append(np.repeat(np.expand_dims(save_mask, axis=0), 3, 0))
-        #     prediction_mask_pos = np.stack(prediction_mask_list_pos)
-        #     img = Image.open(os.path.join("/home/letitiabanana/LAVIS/mmsegmentation/data/VOCdevkit/VOC2010/JPEGImages/", id + '.jpg')).convert('RGB')
-        #     complete_img = np.transpose(img, (2, 0, 1))  # saved and checked, no prob
-        #     complete_img = np.expand_dims(complete_img, axis=0)
-        #     positive_mask = np.multiply(prediction_mask_pos,
-        #                                 np.repeat(complete_img, len(label), axis=0))  # check dim
-        #
-        #     for i in range(len(label)):
-        #         save_edge_map = positive_mask[i, :]
-        #         # print("1280",save_edge_map.max(), save_edge_map.min(), save_edge_map.shape)
-        #         im = Image.fromarray(np.transpose(save_edge_map, (1, 2, 0)).astype(np.uint8))
-        #         # print("data text loc 207", f"./Edge_plus_pos/pos_img{img_id}_class{gt_class_name[i]}_{args.max_att_block_num}_{args.prune_att_head}_att{args.final_att_threshold}.jpeg")
-        #         im.save(
-        #             f"./Drop_result/pos_img{id}_class{label[i]}_{args.max_att_block_num}_{args.prune_att_head}_att{args.cam_threshold}.jpeg")
         gt_class_name = []
         for i in label:
             if i != 0:
@@ -315,265 +282,9 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
             cls_labels = np.asarray(Image.open(label_path), dtype=np.uint8)
         else:
             # cam_dict = np.load(os.path.join(args.cam_out_dir, "img_" + id + ".npy"), allow_pickle=True).item()
-            if args.drop_patch_eval_byclass:
-                # print("evaluating drop patch attention....")
-                att_by_dropiter_list = []
-                cam_dict_drop_byclass = {}
-                ITM_loss_list_bydropiter = []
-                for drop_iter in range(args.drop_iter):
-                    cam_dict_by_dropiter = np.load(os.path.join(
-                        args.cam_out_dir + f"/{args.cam_att}/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/img_att_forclasses_cancel/",
-                        f"img_{id}_max_blocknum_{args.max_att_block_num}.npy"),
-                        allow_pickle=True).item()
+            if args.drop_patch_eval:
 
-                    # cam_dict_by_dropiter[args.cam_type][cam_dict_by_dropiter[args.cam_type] < 0.1] = 0
-
-                    class_specific_ITM_loss_list = []
-                    for cls_id in cam_dict_by_dropiter["keys"]:  # save class specific weight for each drop iter
-
-                        class_name = getClassName(cls_id, cats)
-                        ITM_loss = globals()[f"att_loss_dict_dropiter{drop_iter}"][
-                            f"{id}_{class_name}_ITMloss"]  # for one image, each class has its respective loss weight
-                        class_specific_ITM_loss_list.append(ITM_loss)
-
-                    ITM_loss_list_bydropiter.append(class_specific_ITM_loss_list)
-
-                    att_by_dropiter_list.append(cam_dict_by_dropiter[args.cam_type])
-                weight_from_byclassITMloss = np.stack(ITM_loss_list_bydropiter)
-                # print("weight_from_byclassITMloss.shape", weight_from_byclassITMloss.shape)
-                for i in range(weight_from_byclassITMloss.shape[1]):
-                    weight_from_byclassITMloss[:, i] = list(softmax([y - x for x, y in
-                                                                     zip(weight_from_byclassITMloss[:, i][:-1],
-                                                                         weight_from_byclassITMloss[:, i][1:])])) + [0.1]
-                    print("162 weight_from_byclassITMloss[:,i]", weight_from_byclassITMloss[:, i])
-                # stack_att = np.stack(att_by_dropiter_list)
-                # print("159 weight_from_byclassITMloss.shape, stack_att.shape", weight_from_byclassITMloss.shape, att_by_dropiter_list[0].shape, att_by_dropiter_list[0].sum())
-                # breakpoint()
-
-                # ITM_loss_list = [0.5] + softmax([y - x for x, y in zip(ITM_loss_list[:-1], ITM_loss_list[1:])])
-                weighted_droppatchatt = np.zeros(att_by_dropiter_list[0].shape)
-                for iter in range(weight_from_byclassITMloss.shape[0]):
-
-                    for cls_idx in range(weight_from_byclassITMloss.shape[1]):
-                        weighted_droppatchatt[cls_idx, :, :] += att_by_dropiter_list[iter][cls_idx, :, :] * \
-                                                                weight_from_byclassITMloss[iter, cls_idx]
-
-                print("177 weighted_droppatchatt.shape", weighted_droppatchatt.shape, weighted_droppatchatt.sum(),
-                      att_by_dropiter_list[iter][cls_idx, :, :].shape, weight_from_byclassITMloss[iter, cls_idx])
-
-                cam_dict_drop_byclass[f"{args.cam_type}"] = weighted_droppatchatt
-                cam_dict_drop_byclass["keys"] = cam_dict_by_dropiter["keys"]
-
-            elif args.drop_patch_eval:
-
-                if args.drop_patch_eval == 'ITMloss':
-
-                    att_by_dropiter_list = []
-                    cam_dict_drop = {}
-                    ITM_loss_list = []
-                    for drop_iter in range(args.drop_iter):
-                        if args.prune_att_head:
-                            if len(args.prune_att_head) == 1:
-                                cam_dict_by_dropiter = np.load(os.path.join(
-                                    args.cam_out_dir + f"/{args.cam_att}/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/img_att_forclasses_cancel/",
-                                    f"img_{id}_max_blocknum_{args.max_att_block_num}_atthead_{args.prune_att_head}.npy"),
-                                    allow_pickle=True).item()
-                                if cam_dict_by_dropiter[args.cam_type] is not None:
-                                    if np.isnan(cam_dict_by_dropiter[args.cam_type]).any():
-                                        cam_dict_by_dropiter[args.cam_type][
-                                            np.isnan(cam_dict_by_dropiter[args.cam_type])] = 0
-                                        print("att map contains nan", id, drop_iter)
-                                # if cam_dict_by_dropiter[args.cam_type] is not None:
-                                #     for cls_id, cls_name in enumerate(gt_class_name):
-                                #         # print("267 cam dict check normalization",id, cls_name, cam_dict_by_dropiter[args.cam_type][cls_id,:].max(),cam_dict_by_dropiter[args.cam_type][cls_id,:].min())
-                                #         cam_dict_by_dropiter[args.cam_type][cls_id,:] = (cam_dict_by_dropiter[args.cam_type][cls_id,:] - cam_dict_by_dropiter[args.cam_type][cls_id,:].min()) / (cam_dict_by_dropiter[args.cam_type][cls_id,:].max() - cam_dict_by_dropiter[args.cam_type][cls_id,:].min())
-                            elif args.prune_att_head == "369":
-                                cam_dict_by_atthead_list = []
-                                for att_head in [3, 6, 9]:
-                                    cam_dict_by_dropiter = np.load(os.path.join(
-                                        args.cam_out_dir + f"/{args.cam_att}/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/img_att_forclasses_cancel/",
-                                        f"img_{id}_max_blocknum_{args.max_att_block_num}_atthead_{att_head}.npy"),
-                                        allow_pickle=True).item()
-                                    cam_dict_by_atthead_list.append(cam_dict_by_dropiter[args.cam_type])
-                                if cam_dict_by_atthead_list[0] is not None:
-                                    cam_dict_by_dropiter[args.cam_type] = cam_dict_by_atthead_list[0] - 0.3 * \
-                                                                          cam_dict_by_atthead_list[1] + \
-                                                                          cam_dict_by_atthead_list[2]
-
-                        else:
-                            cam_dict_by_dropiter = np.load(os.path.join(
-                                args.cam_out_dir + f"/{args.cam_att}/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/img_att_forclasses_cancel/",
-                                f"img_{id}_max_blocknum_{args.max_att_block_num}.npy"),
-                                allow_pickle=True).item()
-
-                        if drop_iter > 0 and att_by_dropiter_list[0] is not None:
-                            # print("243 sum of att before drop", cam_dict_by_dropiter[args.cam_type].sum())
-                            tic1 = time.perf_counter()
-                            cam_dict_by_dropiter[args.cam_type] = drop_image_patch_with_highest_att(args, drop_iter,
-                                                                                                    cam_dict_by_dropiter[
-                                                                                                        args.cam_type],
-                                                                                                    id, gt_class_name,
-                                                                                                    args.del_patch_num)
-                            toc1 = time.perf_counter()
-                            print(f"Time: save image by class att and union image use {toc1 - tic1:0.4f} seconds")
-                            # print("243 sum of att after drop", cam_dict_by_dropiter[args.cam_type].sum())
-
-                        att_by_dropiter_list.append(cam_dict_by_dropiter[args.cam_type])
-                        # cam_dict_by_dropiter[args.cam_type][cam_dict_by_dropiter[args.cam_type] < 0.1*(args.drop_iter-drop_iter)] = 0
-
-                        ITM_loss = globals()[f"att_loss_dict_dropiter{drop_iter}"][
-                            f"{id}_ITMloss"]  # for one image, each class has its respective loss weight
-
-                        ITM_loss_list.append(ITM_loss)
-
-                    if att_by_dropiter_list[0] is None:
-                        print("img has no cam", id)
-                        cam_dict_drop = {f"{args.cam_type}": None, "keys": None}
-                    else:
-                        if args.drop_iter > 1:
-                            # stack_att = np.stack(att_by_dropiter_list)
-                            # ITM_loss_list = [1/args.drop_iter] * args.drop_iter #softmax([y - x for x, y in zip(ITM_loss_list[:-1], ITM_loss_list[1:])]) + [0.5]
-                            ITM_loss_list = [0.5] + np.concatenate(
-                                ([0.5], softmax([y - x for x, y in zip(ITM_loss_list[:-1], ITM_loss_list[1:])])))  # +
-                        else:
-                            ITM_loss_list = [1]
-                            # print("ITM_loss_list", ITM_loss_list)
-
-                        weighted_droppatchatt_byITMloss = np.zeros(att_by_dropiter_list[0].shape)
-                        for ind, w in enumerate(ITM_loss_list):
-                            weighted_droppatchatt_byITMloss += att_by_dropiter_list[ind] * w
-
-                        # try:
-                        #     assert np.array_equal(weighted_droppatchatt_byITMloss,att_by_dropiter_list[0])
-                        # except:
-                        #     breakpoint()
-                        weighted_droppatchatt_byITMloss[weighted_droppatchatt_byITMloss < cam_threshold] = 0
-                        weighted_droppatchatt_byITMloss[weighted_droppatchatt_byITMloss >= cam_threshold] = 1
-
-                        # print("271 unique weighted_droppatchatt_byITMloss", np.unique(weighted_droppatchatt_byITMloss))
-                        # # cams_org[i][cams_org[i] > (1- cam_threshold)] = 0
-                        # cams_org[i][cams_org[i] >= cam_threshold] = 1
-
-                        cam_dict_drop[f"{args.cam_type}"] = weighted_droppatchatt_byITMloss
-                        cam_dict_drop["keys"] = cam_dict_by_dropiter["keys"]
-                elif args.drop_patch_eval == 'clipsim':
-                    # print("111111111")
-
-                    att_by_dropiter_list = []
-                    cam_dict_drop = {}
-                    clipsim_list_bydropiter = []
-                    for drop_iter in range(args.drop_iter):
-                        # cam_dict_by_dropiter = np.load(os.path.join(
-                        #     args.cam_out_dir + f"/{args.cam_att}/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/img_att_forclasses/",
-                        #     f"img_{id}_max_blocknum_{args.max_att_block_num}.npy"),
-                        #     allow_pickle=True).item()
-                        # # print("cam_dict_by_dropiter max min",cam_dict_by_dropiter[args.cam_type].max(), cam_dict_by_dropiter[args.cam_type].min(), type(cam_dict_by_dropiter[args.cam_type][0,0,0]))
-                        # # if cam_dict_by_dropiter[args.cam_type] is not None:
-                        # #     cam_dict_by_dropiter[args.cam_type][cam_dict_by_dropiter[args.cam_type] < 0.05] = 0
-                        if args.prune_att_head:
-                            if len(args.prune_att_head) == 1:
-                                cam_dict_by_dropiter = np.load(os.path.join(
-                                    args.cam_out_dir + f"/{args.cam_att}/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/img_att_forclasses_cancel/",
-                                    f"img_{id}_max_blocknum_{args.max_att_block_num}_atthead_{args.prune_att_head}.npy"),
-                                    allow_pickle=True).item()
-                                # Some classes can have no att, read as nan, incase the later operation cannot deal with nan, swith them to 0 first
-                                if cam_dict_by_dropiter[args.cam_type] is not None:
-                                    if np.isnan(cam_dict_by_dropiter[args.cam_type]).any():
-                                        cam_dict_by_dropiter[args.cam_type][np.isnan(cam_dict_by_dropiter[args.cam_type])] = 0
-                                        print("att map contains nan", id, drop_iter)
-                                # if cam_dict_by_dropiter[args.cam_type] is not None:
-                                #     for cls_id, cls_name in enumerate(gt_class_name):
-                                #         # print("267 cam dict check normalization",id, cls_name, cam_dict_by_dropiter[args.cam_type][cls_id,:].max(),cam_dict_by_dropiter[args.cam_type][cls_id,:].min())
-                                #         cam_dict_by_dropiter[args.cam_type][cls_id,:] = (cam_dict_by_dropiter[args.cam_type][cls_id,:] - cam_dict_by_dropiter[args.cam_type][cls_id,:].min()) / (cam_dict_by_dropiter[args.cam_type][cls_id,:].max() - cam_dict_by_dropiter[args.cam_type][cls_id,:].min())
-                            elif args.prune_att_head == "369":
-                                cam_dict_by_atthead_list = []
-                                for att_head in [3, 6, 9]:
-                                    cam_dict_by_dropiter = np.load(os.path.join(
-                                        args.cam_out_dir + f"/{args.cam_att}/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/img_att_forclasses_cancel/",
-                                        f"img_{id}_max_blocknum_{args.max_att_block_num}_atthead_{att_head}.npy"),
-                                        allow_pickle=True).item()
-                                    cam_dict_by_atthead_list.append(cam_dict_by_dropiter[args.cam_type])
-                                if cam_dict_by_atthead_list[0] is not None:
-                                    cam_dict_by_dropiter[args.cam_type] = cam_dict_by_atthead_list[0] - 0.3 * \
-                                                                          cam_dict_by_atthead_list[1] + \
-                                                                          cam_dict_by_atthead_list[2]
-
-                        else:
-                            cam_dict_by_dropiter = np.load(os.path.join(
-                                args.cam_out_dir + f"/{args.cam_att}/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/img_att_forclasses_cancel/",
-                                f"img_{id}_max_blocknum_{args.max_att_block_num}.npy"),
-                                allow_pickle=True).item()
-
-                        # drop the attention of patches that have been dropped
-                        if drop_iter > 0 and att_by_dropiter_list[0] is not None:
-                            # print("383 sum of att before drop", cam_dict_by_dropiter[args.cam_type].sum())
-                            cam_dict_by_dropiter[args.cam_type] = drop_image_patch_with_highest_att(args, drop_iter,
-                                                                                                    cam_dict_by_dropiter[args.cam_type],
-                                                                                                    id, gt_class_name,
-                                                                                                    args.del_patch_num)
-                            cam_dict_by_dropiter[args.cam_type] = normalize(cam_dict_by_dropiter[args.cam_type])
-                            # print("515 max of att after drop", cam_dict_by_dropiter[args.cam_type].max())
-                            cam_dict_by_dropiter[args.cam_type][cam_dict_by_dropiter[args.cam_type] <= 0.05] = 0 #0.05 500 36.7
-                            # print(cam_dict_by_dropiter[args.cam_type].sum())
-
-                        att_by_dropiter_list.append(cam_dict_by_dropiter[args.cam_type])
-                        class_specific_clipsim_list = []
-
-                        for cls_id in cam_dict_by_dropiter["keys"]:  # save class specific weight for each drop iter
-                            class_name = getClassName(cls_id, cats)
-                            try:
-                                clip_sim_byclass = globals()[f"att_loss_dict_dropiter{drop_iter}"][f"{id}_classname{class_name}_clipsim"]
-                                class_specific_clipsim_list.append(clip_sim_byclass)
-                            except:
-                                clip_sim_byclass = 0
-                                class_specific_clipsim_list.append(clip_sim_byclass)
-                                print("576 no clipsim", drop_iter,f"{id}_classname{class_name}_clipsim", COUNT)
-                                COUNT +=1
-                        clipsim_list_bydropiter.append(class_specific_clipsim_list)
-
-                        #     continue
-                    try:
-                        assert len(clipsim_list_bydropiter) == args.drop_iter
-                    except:
-                        breakpoint()
-                    if att_by_dropiter_list[0] is None:
-                        # print("524 len(att_by_dropiter_list)", id, len(att_by_dropiter_list))
-                        print("img has no cam", id)
-                        cam_dict_drop = {f"{args.cam_type}": None, "keys": None}
-                    else:
-                        byclass_clipsim = np.stack(clipsim_list_bydropiter)
-                        # print("395 byclass_clipsim", id, len(gt_class_name), byclass_clipsim.shape)
-                        weight_from_byclass_clipsim = np.ones(byclass_clipsim.shape)
-
-                        for j in range(byclass_clipsim.shape[1]):  # for each class
-                            # print("238 diff", class_name, diff)
-                            for i in range(1, byclass_clipsim.shape[0]):  # for each drop iter
-
-                                if byclass_clipsim[i, j] < 0.25:
-                                    weight_from_byclass_clipsim[i:, j] = 0  #clip sim < 0.25 everything behind deleted
-                                    break
-                                    # weight_from_byclass_clipsim[i, j] = 0 #clip sim > 0.25 add bad
-
-
-                        weighted_droppatchatt = np.zeros(att_by_dropiter_list[0].shape)
-                        # print("450 att_by_dropiter_list[0].shape", att_by_dropiter_list[0].shape)
-                        for cls_idx in range(weight_from_byclass_clipsim.shape[1]):
-                            for iter in range(weight_from_byclass_clipsim.shape[0]):
-                                weighted_droppatchatt[cls_idx, :, :] += att_by_dropiter_list[iter][cls_idx, :, :] * \
-                                                                        weight_from_byclass_clipsim[iter, cls_idx]
-
-                        for cls_idx in range(weight_from_byclass_clipsim.shape[1]):
-                            weighted_droppatchatt[cls_idx][weighted_droppatchatt[cls_idx] < cam_threshold] = 0  #
-                            weighted_droppatchatt[cls_idx][weighted_droppatchatt[cls_idx] >= cam_threshold] = 1  #
-
-
-
-                        ######################################
-
-
-                        cam_dict_drop[f"{args.cam_type}"] = weighted_droppatchatt
-                        cam_dict_drop["keys"] = cam_dict_by_dropiter["keys"]
-                elif args.drop_patch_eval == 'halving':
+                if args.drop_patch_eval == 'halving':
                     # print("111111111")
 
                     att_by_dropiter_list = []
@@ -613,49 +324,15 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
                             # print(cam_dict_by_dropiter[args.cam_type].sum())
 
                         att_by_dropiter_list.append(cam_dict_by_dropiter[args.cam_type])
-                        class_specific_clipsim_list = []
 
-                        # for cls_id in cam_dict_by_dropiter["keys"]:  # save class specific weight for each drop iter
-                        #     class_name = getClassName(cls_id, cats)
-                        #     try:
-                        #         clip_sim_byclass = globals()[f"att_loss_dict_dropiter{drop_iter}"][
-                        #             f"{id}_classname{class_name}_clipsim"]
-                        #         class_specific_clipsim_list.append(clip_sim_byclass)
-                        #     except:
-                        #         clip_sim_byclass = 0
-                        #         class_specific_clipsim_list.append(clip_sim_byclass)
-                        #         print("576 no clipsim", drop_iter, f"{id}_classname{class_name}_clipsim", COUNT)
-                        #         COUNT += 1
-                        # clipsim_list_bydropiter.append(class_specific_clipsim_list)
 
-                        #     continue
-                    # try:
-                    #     assert len(clipsim_list_bydropiter) == args.drop_iter
-                    # except:
-                    #     breakpoint()
+
                     if att_by_dropiter_list[0] is None:
                         # print("524 len(att_by_dropiter_list)", id, len(att_by_dropiter_list))
                         print("img has no cam", id)
                         cam_dict_drop = {f"{args.cam_type}": None, "keys": None}
                     else:
-                        # byclass_clipsim = np.stack(clipsim_list_bydropiter)
-                        # print("395 byclass_clipsim", id, len(gt_class_name), byclass_clipsim.shape)
-                        # weight_from_byclass_clipsim = np.ones((args.drop_iter, len(cam_dict_by_dropiter["keys"])))
-                        #
-                        # for j in range(byclass_clipsim.shape[1]):  # for each class
-                        #     # print("238 diff", class_name, diff)
-                        #     for i in range(1, byclass_clipsim.shape[0]):  # for each drop iter
-                        #
-                        #         if byclass_clipsim[i, j] < 0.25:
-                        #             weight_from_byclass_clipsim[i:, j] = 0  # clip sim < 0.25 everything behind deleted
-                        #             break
-                        #             # weight_from_byclass_clipsim[i, j] = 0 #clip sim > 0.25 add bad
 
-                        # weighted_droppatchatt = np.zeros(att_by_dropiter_list[0].shape)
-                        # # print("450 att_by_dropiter_list[0].shape", att_by_dropiter_list[0].shape)
-                        # for cls_idx in range(weight_from_byclass_clipsim.shape[1]):# for each class
-                        #     for iter in range(weight_from_byclass_clipsim.shape[0]):# for each drop iter
-                        #         weighted_droppatchatt[cls_idx, :, :] += att_by_dropiter_list[iter][cls_idx, :, :]
 
                         weighted_droppatchatt = att_by_dropiter_list[0]
                         for iter in range(args.drop_iter):  # for each drop iter
@@ -714,13 +391,6 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
                             cam_dict_drop["keys"] = cam_dict_by_dropiter["keys"]
                         toc_post = time.perf_counter()
                         print(f"Time: Count TIME III GRADCAM {toc_post - tic_post:0.4f} seconds")
-                        # if eval_i < 100:
-                        #     map_b = map_b / (map_b.max() - map_b.min()) * 255
-                        #     im = Image.fromarray(map_b)
-                        #     if im.mode != 'RGB':
-                        #         im = im.convert('RGB')
-                        #     im.save(
-                        #         f"./Check_crf_context/Before_threshold_CRF{id}_{args.max_att_block_num}_{args.prune_att_head}_{args.postprocess}.jpeg")
 
                         '''Save colored segmentation map'''
                         # from skimage import io
@@ -802,26 +472,6 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
             # print("172 cam_dict", cam_dict)
             cams_org = cam_dict[args.cam_type]
 
-            # try:
-            #     cam_dict = np.load(os.path.join(args.cam_out_dir, "img_" + id + f'_blocknum_11.npy'),
-            #                        allow_pickle=True).item()
-            # except:
-            #     no_blocknum_count += 1
-            #     cam_dict = {f"{args.cam_type}": None}
-            #
-            # if cam_dict[f"{args.cam_type}"] is not None:
-            #     cams_org = cam_dict[f"{args.cam_type}"][block_num:(block_num + 2), :, :]
-            #     # print("118 cams_org.shape", cams_org.shape)
-            #     # cam_dict = cam_dict[block_num:(block_num + 2), :, :]
-            # else:
-            #     cams_org = cam_dict[args.cam_type]
-
-            # if cams_org is not None:
-            #     print("105 cams_org shape", cams_org.shape, cams_org.min(), cams_org.max(), np.unique(cams_org))
-            # else:
-            #     print("cams_org is none")
-
-            # print("103 gt shape", gt.shape)
             cams_resize = []
 
             if cams_org is not None:
@@ -876,8 +526,6 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
                 # print("387 cams.shape", cams.shape, id)
                 cls_labels = cams.astype(int)
                 # breakpoint()
-            # print("140 cls_labels_0.shape", cls_labels_0.shape)
-            # breakpoint()
 
             try:
                 assert cls_labels.shape == gt.shape
@@ -931,16 +579,6 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
         print(iou)
 
     return iou, iou["Mean IoU"], no_blocknum_count
-
-    # def softmax(logits):
-    #     bottom = sum([math.exp(x) for x in logits])
-    #     softmax = [math.exp(x)/bottom for x in logits]
-    #     return softmax
-    #
-    # def softmax(x):
-    #     """Compute softmax values for each sets of scores in x."""
-    #     e_x = np.exp(x - np.max(x))
-    #     return e_x / e_x.sum(axis=0) # only difference
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

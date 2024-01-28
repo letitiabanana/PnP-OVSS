@@ -251,21 +251,9 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
     labels = []
     n_images = 0
     no_blocknum_count = 0
-    # for drop_iter in range(args.drop_iter):
-    #     # print("117 stats", f"{args.cam_out_dir}/{args.cam_att}/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/highest_att_and_img_ITM_loss_fordrop_iter{drop_iter}.json")
-    #     att_loss_path = f"{args.cam_out_dir}/{args.cam_att}/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/highest_att_and_img_ITM_loss_fordrop_iter{drop_iter}_atthead{args.prune_att_head}.json"
-    #     with open(att_loss_path, 'r') as file:
-    #         globals()[f"att_loss_dict_dropiter{drop_iter}"] = json.load(file)
-    COUNT = 0
+
     for eval_i, id in tqdm(enumerate(tmp_eval_list)):
-        # gt_file = os.path.join(args.gt_root, '%s.png' % id)
-        # gt = np.array(Image.open(gt_file)).astype(np.uint8)
-        # breakpoint()
-        # labels.append(gt)
-        # if id not in ['2009_004044','2009_004033','2009_004022','2009_004016','2009_003992','2009_003951','2009_003908','2009_003884','2009_003863','2009_003855','2009_003821','2009_003771','2009_003756','2009_003751','2009_003642','2009_003606','2009_003589','2009_003549','2009_003509','2009_003467','2009_003460']:
-        #     continue
-        # if id != "2010_005428":
-        #     continue
+
         mask = np.float32(Image.open(os.path.join("/home/letitiabanana/LAVIS/Cityscapes/gtFine/val/", targets[eval_i])))
         # F.array(np.array(mask), cpu(0)).astype('int32')
         id = id.split("/")[-1].split(".")[0]
@@ -280,32 +268,6 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
         mask[mask == 1] = 26
         mask[mask < 7] = 0
 
-        # for lb in label:
-        #     if int(lb)>0:
-        #         print(id, lb, cats[int(lb)])
-        # continue
-
-        # if eval_i < 100:
-        #     prediction_mask_list_pos = []
-        #     for i in label:
-        #         pos = norm_mask == i
-        #         save_mask = pos.astype('int32')
-        #         # print("1249", complete_img.shape[2:], prediction_mask_pos[i, :].shape, skimage_transform.resize(prediction_mask_pos[i, :], complete_img.shape[2:], order=0, mode="constant").shape)
-        #         prediction_mask_list_pos.append(np.repeat(np.expand_dims(save_mask, axis=0), 3, 0))
-        #     prediction_mask_pos = np.stack(prediction_mask_list_pos)
-        #     img = Image.open(os.path.join("/home/letitiabanana/LAVIS/mmsegmentation/data/VOCdevkit/VOC2010/JPEGImages/", id + '.jpg')).convert('RGB')
-        #     complete_img = np.transpose(img, (2, 0, 1))  # saved and checked, no prob
-        #     complete_img = np.expand_dims(complete_img, axis=0)
-        #     positive_mask = np.multiply(prediction_mask_pos,
-        #                                 np.repeat(complete_img, len(label), axis=0))  # check dim
-        #
-        #     for i in range(len(label)):
-        #         save_edge_map = positive_mask[i, :]
-        #         # print("1280",save_edge_map.max(), save_edge_map.min(), save_edge_map.shape)
-        #         im = Image.fromarray(np.transpose(save_edge_map, (1, 2, 0)).astype(np.uint8))
-        #         # print("data text loc 207", f"./Edge_plus_pos/pos_img{img_id}_class{gt_class_name[i]}_{args.max_att_block_num}_{args.prune_att_head}_att{args.final_att_threshold}.jpeg")
-        #         im.save(
-        #             f"./Drop_result/pos_img{id}_class{label[i]}_{args.max_att_block_num}_{args.prune_att_head}_att{args.cam_threshold}.jpeg")
         gt_class_name = []
         for i in label:
             if i != 0:
@@ -323,56 +285,7 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
             cls_labels = np.asarray(Image.open(label_path), dtype=np.uint8)
         else:
             # cam_dict = np.load(os.path.join(args.cam_out_dir, "img_" + id + ".npy"), allow_pickle=True).item()
-            if args.drop_patch_eval_byclass:
-                # print("evaluating drop patch attention....")
-                att_by_dropiter_list = []
-                cam_dict_drop_byclass = {}
-                ITM_loss_list_bydropiter = []
-                for drop_iter in range(args.drop_iter):
-                    cam_dict_by_dropiter = np.load(os.path.join(
-                        args.cam_out_dir + f"/{args.cam_att}/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/img_att_forclasses_cancel/",
-                        f"img_{id}_max_blocknum_{args.max_att_block_num}.npy"),
-                        allow_pickle=True).item()
-
-                    # cam_dict_by_dropiter[args.cam_type][cam_dict_by_dropiter[args.cam_type] < 0.1] = 0
-
-                    class_specific_ITM_loss_list = []
-                    for cls_id in cam_dict_by_dropiter["keys"]:  # save class specific weight for each drop iter
-
-                        class_name = getClassName(cls_id, cats)
-                        ITM_loss = globals()[f"att_loss_dict_dropiter{drop_iter}"][
-                            f"{id}_{class_name}_ITMloss"]  # for one image, each class has its respective loss weight
-                        class_specific_ITM_loss_list.append(ITM_loss)
-
-                    ITM_loss_list_bydropiter.append(class_specific_ITM_loss_list)
-
-                    att_by_dropiter_list.append(cam_dict_by_dropiter[args.cam_type])
-                weight_from_byclassITMloss = np.stack(ITM_loss_list_bydropiter)
-                # print("weight_from_byclassITMloss.shape", weight_from_byclassITMloss.shape)
-                for i in range(weight_from_byclassITMloss.shape[1]):
-                    weight_from_byclassITMloss[:, i] = list(softmax([y - x for x, y in
-                                                                     zip(weight_from_byclassITMloss[:, i][:-1],
-                                                                         weight_from_byclassITMloss[:, i][1:])])) + [0.1]
-                    print("162 weight_from_byclassITMloss[:,i]", weight_from_byclassITMloss[:, i])
-                # stack_att = np.stack(att_by_dropiter_list)
-                # print("159 weight_from_byclassITMloss.shape, stack_att.shape", weight_from_byclassITMloss.shape, att_by_dropiter_list[0].shape, att_by_dropiter_list[0].sum())
-                # breakpoint()
-
-                # ITM_loss_list = [0.5] + softmax([y - x for x, y in zip(ITM_loss_list[:-1], ITM_loss_list[1:])])
-                weighted_droppatchatt = np.zeros(att_by_dropiter_list[0].shape)
-                for iter in range(weight_from_byclassITMloss.shape[0]):
-
-                    for cls_idx in range(weight_from_byclassITMloss.shape[1]):
-                        weighted_droppatchatt[cls_idx, :, :] += att_by_dropiter_list[iter][cls_idx, :, :] * \
-                                                                weight_from_byclassITMloss[iter, cls_idx]
-
-                print("177 weighted_droppatchatt.shape", weighted_droppatchatt.shape, weighted_droppatchatt.sum(),
-                      att_by_dropiter_list[iter][cls_idx, :, :].shape, weight_from_byclassITMloss[iter, cls_idx])
-
-                cam_dict_drop_byclass[f"{args.cam_type}"] = weighted_droppatchatt
-                cam_dict_drop_byclass["keys"] = cam_dict_by_dropiter["keys"]
-
-            elif args.drop_patch_eval:
+            if args.drop_patch_eval:
 
                 if args.drop_patch_eval == 'halving':
 
@@ -513,13 +426,6 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
                             cam_dict_drop[f"{args.cam_type}"] = weighted_droppatchatt
                             cam_dict_drop["keys"] = cam_dict_by_dropiter["keys"]
 
-                        # if eval_i < 100:
-                        #     map_b = map_b / (map_b.max() - map_b.min()) * 255
-                        #     im = Image.fromarray(map_b)
-                        #     if im.mode != 'RGB':
-                        #         im = im.convert('RGB')
-                        #     im.save(
-                        #         f"./Check_crf_context/Before_threshold_CRF{id}_{args.max_att_block_num}_{args.prune_att_head}_{args.postprocess}.jpeg")
 
                         '''Save colored segmentation map'''
                         # from skimage import io
@@ -601,27 +507,7 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
             # print("172 cam_dict", cam_dict)
             cams_org = cam_dict[args.cam_type]
 
-            # try:
-            #     cam_dict = np.load(os.path.join(args.cam_out_dir, "img_" + id + f'_blocknum_11.npy'),
-            #                        allow_pickle=True).item()
-            # except:
-            #     no_blocknum_count += 1
-            #     cam_dict = {f"{args.cam_type}": None}
-            #
-            # if cam_dict[f"{args.cam_type}"] is not None:
-            #     cams_org = cam_dict[f"{args.cam_type}"][block_num:(block_num + 2), :, :]
-            #     # print("118 cams_org.shape", cams_org.shape)
-            #     # cam_dict = cam_dict[block_num:(block_num + 2), :, :]
-            # else:
-            #     cams_org = cam_dict[args.cam_type]
 
-            # if cams_org is not None:
-            #     print("105 cams_org shape", cams_org.shape, cams_org.min(), cams_org.max(), np.unique(cams_org))
-            # else:
-            #     print("cams_org is none")
-
-            # print("103 gt shape", gt.shape)
-            cams_resize = []
 
             if cams_org is not None:
                 # for i in range(cams_org.shape[0]):
@@ -736,16 +622,6 @@ def run_eval_cam(args, cats, block_num, cam_threshold, print_log=False, is_coco=
 
     return iou, iou["Mean IoU"], no_blocknum_count
 
-    # def softmax(logits):
-    #     bottom = sum([math.exp(x) for x in logits])
-    #     softmax = [math.exp(x)/bottom for x in logits]
-    #     return softmax
-    #
-    # def softmax(x):
-    #     """Compute softmax values for each sets of scores in x."""
-    #     e_x = np.exp(x - np.max(x))
-    #     return e_x / e_x.sum(axis=0) # only difference
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--cam_out_dir", default="./Eval_test_ddp_0331/img_att_forclasses/", type=str)
@@ -804,21 +680,7 @@ if __name__ == "__main__":
             targets.append(os.path.join(target_dir, target_name))
     images = images[:1]
     targets = targets[:1]
-    #
-    # filename_list = []
-    # for (dirpath, dirnames, filenames) in walk(args.img_root):
-    #     filename_list.extend(filenames)
-    #     break
-    # print("gt len", len(filename_list))
-    # file_list = [id_.split(".")[0] for id_ in filename_list]
 
-    # with open(os.path.join("/home/letitiabanana/LAVIS/mmsegmentation/data/VOCdevkit/VOC2010/", "trainval_merged.json"), "r") as outfile:
-    #     trainval = json.load(outfile)
-    #
-    # for image in trainval["images"]:
-    #     if image["phase"] == "val":
-    #         filename_list.append(image["file_name"])
-    # file_list = [id_.split(".")[0] for id_ in filename_list]
     tmp_eval_list = images
     print('{} images to eval'.format(len(tmp_eval_list)))
     print("294 tmp_eval_list", tmp_eval_list)
