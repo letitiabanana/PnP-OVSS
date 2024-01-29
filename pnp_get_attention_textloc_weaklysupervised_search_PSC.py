@@ -556,7 +556,7 @@ def get_grad_cam_labelascaption(batch_id, drop_iter, args, imgs, imgs_clip_in, n
                                                            img_idx, drop_iter, norm_img, loss_for_bacth,
                                                            img_shape, cats, nms, att_head=att_head,
                                                            max_block_num=max_block_num,
-                                                           cam_att=cam_ensemble[max_block_num - 1][att_head][
+                                                           cam_att=gradcam_ensemble[max_block_num - 1][att_head][
                                                                img_idx],
                                                            cam_type="cam")
                 # max_block_num = args.max_att_block_num
