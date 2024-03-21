@@ -1,6 +1,6 @@
 # Code Implementation for CVPR2024 PAPER -- Emergent Open-Vocabulary Semantic Segmentation from Off-the-shelf Vision-Language Models (PnP-OVSS)
 
-:exclamation: Only the code for BLIP with Pascal Context and Cityscapes is provided here. I haven't clean up my code yet so the structure is still messy sryyyy~~:cry::cry:
+:exclamation: Only the code for BLIP with Pascal Context and Cityscapes is provided here. 
 
 ## System 
 CUDA Version: 11.7  <br>
