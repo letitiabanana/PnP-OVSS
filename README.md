@@ -1,6 +1,6 @@
 # Code Implementation for CVPR2024 PAPER -- Emergent Open-Vocabulary Semantic Segmentation from Off-the-shelf Vision-Language Models (PnP-OVSS)
 
-:exclamation: Only the code for BLIP with Pascal Context and Cityscapes is provided here. 
+:exclamation: Only the code for BLIP with Pascal Context is provided here. 
 
 ## System 
 CUDA Version: 11.7  <br>
@@ -45,13 +45,7 @@ LAVIS
 │   │   ├── VOC2010
 │   │   │   ├── JPEGImages
 │   │   │   ├── SegmentationClassContext
-├── Cityscapes
-│   ├── leftImg8bit
-│   │   ├── train
-│   │   ├── val
-│   ├── gtFine
-│   │   ├── train
-│   │   ├── val
+
 
 ```
 
@@ -70,17 +64,11 @@ Replace /home/user/LAVIS/lavis/processors/blip_processors.py with the file in th
 For Pascal Context <br>
 `bash PSC_halving.sh`
 
-For Cityscapes <br>
-`bash Cityscapes_halving.sh`
-
 
 ### For Gaussian Blur, Dense CRF and Mask Evalutaion
 
 For COCO Object and COCO stuff <br>
 `bash New_eval_cam_PSC.sh`
-
-For Cityscapes <br>
-`bash New_eval_cam_Cityscapes.sh`
 
 The output would have the following structure
 ```
