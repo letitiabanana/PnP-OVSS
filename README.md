@@ -4,7 +4,7 @@
 
 ## System 
 CUDA Version: 11.7  <br>
-GPU Memory: 49140MiB <br>
+GPU Memory: 48GB <br>
 
 
 ## Download LAVIS
