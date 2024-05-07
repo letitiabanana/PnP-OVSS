@@ -156,8 +156,6 @@ def captions_text_loc(args,  model_textloc, data_loader, vis_processors_textloc,
     inftime = 0
     for batch_id, (norm_img_sizes, norm_img0s, img0s, paths, img_ids, label) in tqdm(
             enumerate(metric_logger.log_every(data_loader, print_freq)), desc='coco val captions_text_loc:'):
-        if batch_id > 10:
-            continue
         nms = [i for i in cats.values()]
 
         label_ascap_list = []  # for label as caption batch iterations
