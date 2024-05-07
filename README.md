@@ -99,3 +99,9 @@ CUDA_VISIBLE_DEVICES=3 python pnp_get_attention_textloc_weaklysupervised_search_
 ```
 To change image size, you may also need to modify the image size in /home/user/LAVIS/lavis/configs/models/blip_itm_large.yaml <br>
 Remember to match the save_path in {xxx}\_halving.sh with the cam_out_dir in New_eval_cam\_{xx}.sh
+
+
+## Please cite us with this BibTeX:
+```
+
+```
