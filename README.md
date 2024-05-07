@@ -35,7 +35,7 @@ Pascal Context: Download dataset following instruction from [mmsegmentation](htt
 COCO Object <br>
 COCO Stuff <br>
 ADE20K <br>
-Cityscapes: Download dataset following instruction from [mmsegmentation](https://github.com/open-mmlab/mmsegmentation/blob/main/docs/en/user_guides/2_dataset_prepare.md#pascal-context) <br>
+% Cityscapes: Download dataset following instruction from [mmsegmentation](https://github.com/open-mmlab/mmsegmentation/blob/main/docs/en/user_guides/2_dataset_prepare.md#pascal-context) <br>
 
 
 ```
@@ -73,7 +73,7 @@ For COCO Object and COCO stuff <br>
 The output would have the following structure
 ```
 LAVIS
-├── New_Cbatch_Eval_test_ddp_0126_768_flickrfinetune_zeroshot_halvingdrop_Cityscapes
+├── Test_PSC
 │   ├── gradcam
 │   │   ├── max_att_block_num8_del_patch_numsort_thresh005
 │   │   │   ├── drop_iter0
