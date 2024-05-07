@@ -58,21 +58,26 @@ Replace /home/user/LAVIS/lavis/models/base_model.py with the file in this reposi
 Replace /home/user/LAVIS/lavis/processors/blip_processors.py with the file in this repository <br>
 
 ## Run scripts
+
 ### For saving the GradCAM maps and index of patches to drop for each round of Salience Drop
+For Pascal VOC <br>
+`bash VOC_halving.sh`
 
 For Pascal Context <br>
 `bash PSC_halving.sh`
 
+For COCO Object and COCO Stuff, set the data_typa argument in the bash file as "cocothing" or "cocoall"  <br>
+`bash pnp_get_attention_halving.sh`
 
-### For Gaussian Blur, Dense CRF and Mask Evalutaion
 
-For COCO Object and COCO stuff <br>
-`bash New_eval_cam_PSC.sh`
+For ADE20K  <br>
+`bash ADE20K_halving.sh`
+
 
 The output would have the following structure
 ```
 LAVIS
-├── Test_PSC
+├── Test_VOC
 │   ├── gradcam
 │   │   ├── max_att_block_num8_del_patch_numsort_thresh005
 │   │   │   ├── drop_iter0
@@ -84,6 +89,21 @@ LAVIS
 │   │   │   ├── drop_iter3
 │   │   │   ├── drop_iter4
 ```
+
+
+### For Gaussian Blur, Dense CRF and Mask Evalutaion
+
+For Pascal VOC <br>
+`bash New_eval_cam_VOC.sh`
+
+For Pascal Context <br>
+`bash New_eval_cam_PSC.sh`
+
+For COCO Object and COCO Stuff, set the data_typa argument in the bash file as "cocothing" or "cocoall"  <br>
+`bash New_eval_cam_CRF_newcocostuff.sh`
+
+For ADE20K  <br>
+`bash New_eval_cam_ADE20K.sh`
 
 
 ## Modify Hyperparameters in bash files
@@ -102,5 +122,11 @@ Remember to match the save_path in {xxx}\_halving.sh with the cam_out_dir in New
 
 ## Please cite us with this BibTeX:
 ```
-
+@article{luo2023emergent,
+  title={Emergent Open-Vocabulary Semantic Segmentation from Off-the-shelf Vision-Language Models},
+  author={Luo, Jiayun and Khandelwal, Siddhesh and Sigal, Leonid and Li, Boyang},
+  journal={arXiv e-prints},
+  pages={arXiv--2311},
+  year={2023}
+}
 ```
