@@ -155,8 +155,6 @@ def captions_text_loc(args, coco_thing, coco_stuff, nms, model_textloc, data_loa
 
     for batch_id, (norm_img_sizes, norm_img0s, img0s, paths, img_ids) in tqdm(
             enumerate(metric_logger.log_every(data_loader, print_freq)), desc='coco val captions_text_loc:'):
-        if batch_id > 10:
-            continue
         label_ascap_list = []  # for label as caption batch iterations
         gt_class_name_list = []  # for pnpvqa and label as caption, input individual gt class name for each image to recognize the respective label tokendsfor
         for img_id in img_ids:
