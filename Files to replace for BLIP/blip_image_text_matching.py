@@ -422,9 +422,9 @@ def compute_gradcam_ensemble(args, model, visual_input, text_input, tokenized_te
                 block_num
             ].crossattention.self.get_attention_map()
 
-            gradcams = cams[:, :, :, 1:].reshape(visual_input.size(0), 12, -1, patch_num, patch_num) * grads[:, :, :,
-                                                                                                       1:].clamp(
+            gradcams = cams[:, :, :, 1:].reshape(visual_input.size(0), 12, -1, patch_num, patch_num) * grads[:, :, :, 1:].clamp(
                 0).reshape(visual_input.size(0), 12, -1, patch_num, patch_num) * mask[:, :, :cams.shape[2], :, :]
+
             gradcams[gradcams<0] = 0
             gradcam_byatthead_list = []
             for i in range(12):
