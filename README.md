@@ -30,8 +30,9 @@ Download [Gradient_Free_Optimizers_master](https://github.com/SimonBlanke/Gradie
 Git clone [pydensecrf](https://github.com/lucasb-eyer/pydensecrf) and put it under LAVIS 
 
 ## Download datasets
+May Download dataset following instruction from [mmsegmentation](https://github.com/open-mmlab/mmsegmentation/blob/main/docs/en/user_guides/2_dataset_prepare.md#pascal-context)
 Pascal VOC <br>
-Pascal Context: Download dataset following instruction from [mmsegmentation](https://github.com/open-mmlab/mmsegmentation/blob/main/docs/en/user_guides/2_dataset_prepare.md#pascal-context) <br>
+Pascal Context <br>
 COCO Object <br>
 COCO Stuff <br>
 ADE20K <br>
@@ -39,11 +40,39 @@ ADE20K <br>
 
 ```
 LAVIS
-├── mmsegmentation
-│   ├── VOCdevkit
-│   │   ├── VOC2010
-│   │   │   ├── JPEGImages
-│   │   │   ├── SegmentationClassContext
+├──mmsegmentation
+│   ├── mmseg
+│   ├── tools
+│   ├── configs
+│   ├── data
+│   │   ├── VOCdevkit
+│   │   │   ├── VOC2012
+│   │   │   │   ├── JPEGImages
+│   │   │   │   ├── SegmentationClass
+│   │   │   │   ├── Annotations
+│   │   │   ├── VOC2010
+│   │   │   │   ├── JPEGImages
+│   │   │   │   ├── SegmentationClassContext
+│   │   │   │   ├── ImageSets
+│   │   │   │   │   ├── SegmentationContext
+│   │   │   │   │   │   ├── train.txt
+│   │   │   │   │   │   ├── val.txt
+│   │   │   │   ├── trainval_merged.json
+│   │   ├── coco_stuff164k
+│   │   │   ├── images
+│   │   │   │   ├── train2017
+│   │   │   │   ├── val2017
+│   │   │   ├── annotations
+│   │   │   │   ├── train2017
+│   │   │   │   ├── val2017
+├── coco
+│   ├── images
+│   │   ├── val2017
+├── ADEChallengeData2016
+│   ├── images
+│   │   ├── validation
+│   ├── annotations
+│   │   ├── validation
 
 
 ```
@@ -74,37 +103,6 @@ For ADE20K  <br>
 `bash ADE20K_halving.sh`
 
 
-The output would have the following structure
-```
-LAVIS
-├── Test_VOC
-│   ├── gradcam
-│   │   ├── max_att_block_num8_del_patch_numsort_thresh005
-│   │   │   ├── drop_iter0
-│   │   │   │   ├──img_att_forclasses (attention map)
-│   │   │   │   ├──Union_check0928    (visualization of attention map)
-│   │   │   │   ├──highest_att_save   (index of patches to be dropped)
-│   │   │   ├── drop_iter1
-│   │   │   ├── drop_iter2
-│   │   │   ├── drop_iter3
-│   │   │   ├── drop_iter4
-```
-
-
-### For Gaussian Blur, Dense CRF and Mask Evalutaion
-
-For Pascal VOC <br>
-`bash New_eval_cam_VOC.sh`
-
-For Pascal Context <br>
-`bash New_eval_cam_PSC.sh`
-
-For COCO Object and COCO Stuff, set the data_typa argument in the bash file as "cocothing" or "cocoall"  <br>
-`bash New_eval_cam_CRF_newcocostuff.sh`
-
-For ADE20K  <br>
-`bash New_eval_cam_ADE20K.sh`
-
 
 ## Modify Hyperparameters in bash files
 ```
@@ -117,7 +115,6 @@ CUDA_VISIBLE_DEVICES=3 python pnp_get_attention_textloc_weaklysupervised_search_
 --max_att_block_num 8 --drop_iter 5 --prune_att_head 9 --sort_threshold 0.05
 ```
 To change image size, you may also need to modify the image size in /home/user/LAVIS/lavis/configs/models/blip_itm_large.yaml <br>
-Remember to match the save_path in {xxx}\_halving.sh with the cam_out_dir in New_eval_cam\_{xx}.sh
 
 
 ## Please cite us with this BibTeX:
