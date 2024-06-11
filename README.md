@@ -35,7 +35,7 @@ Pascal VOC <br>
 Pascal Context <br>
 COCO Object <br>
 COCO Stuff <br>
-ADE20K <br>
+ADE20K Download dataset from [here](http://groups.csail.mit.edu/vision/datasets/ADE20K/request_data/) <br>
 
 
 ```
@@ -86,35 +86,54 @@ Replace /home/user/LAVIS/lavis/models/vit.py with the file in this repository <b
 Replace /home/user/LAVIS/lavis/models/base_model.py with the file in this repository <br>
 Replace /home/user/LAVIS/lavis/processors/blip_processors.py with the file in this repository <br>
 
+
+## To obtain the GPT4o Classification
+We provide the classification result from GPT4o for the five datasets in this repository, if you would like to run GPT4o by yourself, you may obtain your GPT KPI Key and run:
+
+```
+python PnP_OVSS_0514_updated_segmentation.py \
+  --apikey xxxx
+  --output_dir GPT4o_classification
+  --data_type coco_object 
+```
+
+
 ## Run scripts
 
 ### For saving the GradCAM maps and index of patches to drop for each round of Salience Drop
-For Pascal VOC <br>
-`bash VOC_halving.sh`
+For Pascal VOC, Pascal Context, and ADE20K, modify the data_type to "voc", "psc", and "ade20k" <br>
 
-For Pascal Context <br>
-`bash PSC_halving.sh`
-
-For COCO Object and COCO Stuff, set the data_typa argument in the bash file as "cocothing" or "cocoall"  <br>
-`bash pnp_get_attention_halving.sh`
-
-
-For ADE20K  <br>
-`bash ADE20K_halving.sh`
-
-
-
-## Modify Hyperparameters in bash files
+run `bash `
 ```
-CUDA_VISIBLE_DEVICES=3 python pnp_get_attention_textloc_weaklysupervised_search_Cityscapes.py \
---save_path New_Cbatch_Eval_test_ddp_0126_448_flickrfinetune_zeroshot_halvingdrop_Cityscapes \
---master_port 10990 --gen_multiplecap_withpnpvqa label --world_size 1 \
---del_patch_num sort_thresh005 \
---img_size 768 \
---batch_size 2 \
---max_att_block_num 8 --drop_iter 5 --prune_att_head 9 --sort_threshold 0.05
+python PnP_OVSS_0514_updated_segmentation.py \
+  --save_path BLIP_0602_336_ADE20K_segmentation\
+  --master_port 29790 --gen_multiplecap_withpnpvqa label --world_size 1 \
+  --img_size 336 \
+  --del_patch_num sort_thresh005 \
+  --batch_size 35 \
+  --max_att_block_num 8 --drop_iter 4 --prune_att_head 9 --sort_threshold 0.05 \
+  --threshold 0.15 \
+  --postprocess blur+crf \
+  --data_type ade20k
 ```
-To change image size, you may also need to modify the image size in /home/user/LAVIS/lavis/configs/models/blip_itm_large.yaml <br>
+
+
+For COCO Object and COCO Stuff, set the data_typa argument in the bash file as "coco_object" or "coco_stuff"  <br>
+
+```
+python PnP_OVSS_0514_updated_segmentation_coco.py \
+  --save_path BLIP_0602_336_ADE20K_segmentation\
+  --master_port 29790 --gen_multiplecap_withpnpvqa label --world_size 1 \
+  --img_size 336 \
+  --del_patch_num sort_thresh005 \
+  --batch_size 35 \
+  --max_att_block_num 8 --drop_iter 4 --prune_att_head 9 --sort_threshold 0.05 \
+  --threshold 0.15 \
+  --postprocess blur+crf \
+  --data_type coco_object
+```
+
+For modifying image size, you may also need to modify the image size in /home/user/LAVIS/lavis/configs/models/blip_itm_large.yaml <br>
 
 
 ## Please cite us with this BibTeX:
