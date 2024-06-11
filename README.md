@@ -87,7 +87,7 @@ Replace /home/user/LAVIS/lavis/models/base_model.py with the file in this reposi
 Replace /home/user/LAVIS/lavis/processors/blip_processors.py with the file in this repository <br>
 
 
-## To obtain the GPT4o Classification
+## Obtain the GPT4o Classification
 We provide the classification result from GPT4o for the five datasets in this repository, if you would like to run GPT4o by yourself, you may obtain your GPT KPI Key and run:
 
 ```
