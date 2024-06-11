@@ -1,5 +1,5 @@
 python PnP_OVSS_0514_updated_segmentation.py \
-  --home_dir \home\letitiabanana\LAVIS
+  --home_dir '/home/letitiabanana/LAVIS_OG'
   --save_path BLIP_0602_336_ADE20K_segmentation\
   --master_port 29790 --gen_multiplecap_withpnpvqa label --world_size 1 \
   --img_size 336 \
