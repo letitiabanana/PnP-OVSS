@@ -100,8 +100,7 @@ python PnP_OVSS_0514_updated_segmentation.py \
 
 ## Run scripts
 
-### For saving the GradCAM maps and index of patches to drop for each round of Salience Drop
-For Pascal VOC, Pascal Context, and ADE20K, modify the data_type to "voc", "psc", and "ade20k" <br>
+### For Pascal VOC, Pascal Context, and ADE20K, modify the data_type to "voc", "psc", and "ade20k" <br>
 You may modify world_size to run on multiple GPUs <br>
 
 Run `bash Run_seg.sh`
@@ -118,10 +117,16 @@ python PnP_OVSS_0514_updated_segmentation.py \
   --postprocess blur+crf \
   --data_type ade20k
 ```
-Then modify the save_path in "Calculate_mIoU.py" and run `python calculate_mIou.py` to get the final result for the datasets
+Then modify the save_path and data_type in "Calculate_mIoU.sh" and run `bash calculate_mIou.sh` to get the final result for the datasets
+
+```
+python Calculate_mIoU.py \
+--save_path BLIP_0602_336_ADE20K_segmentation \
+--data_type coco_object
+```
 
 
-For COCO Object and COCO Stuff, set the data_typa argument in the bash file as "coco_object" or "coco_stuff"  <br>
+### For COCO Object and COCO Stuff, set the data_typa argument in the bash file as "coco_object" or "coco_stuff"  <br>
 
 run `bash Run_seg_coco.sh`
 ```
@@ -137,7 +142,10 @@ python PnP_OVSS_0514_updated_segmentation_coco.py \
   --postprocess blur+crf \
   --data_type coco_object
 ```
-Then modify the save_path in "Calculate_mIoU.py" and run `python calculate_mIou.py` to get the final result for the datasets
+Then modify the save_path and data_type in "Calculate_mIoU.sh" and run `bash calculate_mIou.sh` to get the final result for the datasets
+
+
+
 
 For modifying image size, you may also need to modify the image size in /home/user/LAVIS/lavis/configs/models/blip_itm_large.yaml <br>
 
