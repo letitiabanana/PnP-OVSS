@@ -349,7 +349,7 @@ def save_img_union_attention(coco_thing, model_textloc, imgs_in, org_img_sizes, 
         '''Load OG image for denseCRF'''
 
         if not args.in_the_wild:
-            org_img_list = load_OrgImage(img_ids, coco_thing)
+            org_img_list = load_OrgImage(args, img_ids, coco_thing)
         else:
             org_img_list = []
             for img in range(len(img_ids)):
@@ -1123,7 +1123,7 @@ def Load_GroundTruth(args, img_ids, coco_thing):
             label_trues.append(mask_stuff)
     return label_trues
 
-def load_OrgImage(img_ids, coco_thing):
+def load_OrgImage(args, img_ids, coco_thing):
 
     '''Load OG image for denseCRF'''
     org_img_list = []
