@@ -601,7 +601,7 @@ class PascalContext(data.Dataset):
         #     val_file.extend(filenames)
         #     break
 
-        with open(os.path.join("/home/letitiabanana/LAVIS/mmsegmentation/data/VOCdevkit/VOC2010/",
+        with open(os.path.join(f"{args.home_dir}/mmsegmentation/data/VOCdevkit/VOC2010/",
                                "trainval_merged.json"), "r") as outfile:
             trainval = json.load(outfile)
         for image in trainval["images"]:
@@ -1041,7 +1041,7 @@ class PascalContext_GPT(data.Dataset):
         #     val_file.extend(filenames)
         #     break
 
-        with open(os.path.join("/home/letitiabanana/LAVIS/mmsegmentation/data/VOCdevkit/VOC2010/",
+        with open(os.path.join(f"{args.home_dir}/mmsegmentation/data/VOCdevkit/VOC2010/",
                                "trainval_merged.json"), "r") as outfile:
             trainval = json.load(outfile)
         for image in trainval["images"]:
@@ -1388,7 +1388,7 @@ class CocoDetection(data.Dataset):
         # print("50 dataset coco textloc", coco.loadImgs(img_id))
         if self.args.in_the_wild:
             img_id = torch.tensor(int(img_id))
-            path = f'/home/letitiabanana/LAVIS/In_the_wild/{img_id}.jpeg'
+            path = f'{self.args.home_dir}/In_the_wild/{img_id}.jpeg'
             img0 = Image.open(path).convert('RGB')
         else:
             path = coco.loadImgs(img_id)[0]['file_name']
