@@ -262,9 +262,6 @@ def get_grad_cam_labelascaption(batch_id, drop_iter, args, imgs_in, org_img_size
                                             gt_class_name_list, captions,
                                             model_textloc,
                                             rank, nms, cats):
-    Path(
-        f"./{args.save_path}/gradcam/max_att_block_num{args.max_att_block_num}_del_patch_num{args.del_patch_num}/drop_iter{drop_iter}/edge_map").mkdir(
-        parents=True, exist_ok=True)
 
 
 
@@ -715,7 +712,7 @@ def Inference_BLIP_filteredcaption(args, model_textloc, txt_tokens_filtered, img
 def Load_predicted_classes(args, nms, best_class_idx_list, class_filtered_list, caption_filtered_list, gt_class_name_list, img_ids, img, pred_path):
 
     ''' GPT4o without boundary - high precision'''
-    save_path = './GPT4o_classification'
+    save_path = f'{args.home_dir}/GPT4o_classification'
     if args.data_type == "voc":
         path = f"{save_path}/voc_classification_noboundary.json"
     elif args.data_type == "psc":
@@ -891,14 +888,14 @@ def Mean_over_full_label_tokens(model_textloc, txt_tokens, cam_att, nms):
 def Load_GroundTruth(args, img_ids):
     '''Load Ground Truth mask for Evaluation'''
     if args.data_type == "voc":
-        gt_path = './VOCdevkit/VOC2012/SegmentationClass'
+        gt_path = f'{args.home_dir}/VOCdevkit/VOC2012/SegmentationClass'
         label_trues = []
         for img_id in img_ids:
             mask = np.float32(Image.open(os.path.join(gt_path, img_id + '.png')))
             mask[mask == 255] = 0
             label_trues.append(mask)
     elif args.data_type == "psc":
-        gt_path = './mmsegmentation/data/VOCdevkit/VOC2010/SegmentationClassContext/'
+        gt_path = f'{args.home_dir}/mmsegmentation/data/VOCdevkit/VOC2010/SegmentationClassContext/'
         label_trues = []
         for img_id in img_ids:
             mask = np.float32(Image.open(os.path.join(gt_path, img_id + '.png')))
@@ -909,7 +906,7 @@ def Load_GroundTruth(args, img_ids):
         for img_id in img_ids:
             img_id = "ADE_val_" + img_id.rjust(8, '0')
             mask = np.float32(
-                Image.open(os.path.join('./ADEChallengeData2016/annotations/validation/', img_id + '.png')))
+                Image.open(os.path.join(f'{args.home_dir}/ADEChallengeData2016/annotations/validation/', img_id + '.png')))
             # mask[mask == 255] = 0 # background is 0 already
             label_trues.append(mask)
 
@@ -919,14 +916,14 @@ def Load_GroundTruth(args, img_ids):
 def load_OrgImage(args, img_ids):
     '''Load OG image for denseCRF'''
     if args.data_type == "voc":
-        orgimg_path = "./VOCdevkit/VOC2012/JPEGImages/"
+        orgimg_path = f"{args.home_dir}/VOCdevkit/VOC2012/JPEGImages/"
         org_img_list = []
         for img_id in img_ids:
             org_image = Image.open(os.path.join(orgimg_path, img_id + '.jpg')).convert('RGB')
             org_image = np.asarray(org_image)
             org_img_list.append(org_image)
     elif args.data_type == "psc":
-        orgimg_path = "./VOCdevkit/VOC2012/JPEGImages/"
+        orgimg_path = f"{args.home_dir}/VOCdevkit/VOC2012/JPEGImages/"
         org_img_list = []
         for img_id in img_ids:
             org_image = Image.open(os.path.join(orgimg_path, img_id + '.jpg')).convert('RGB')
@@ -936,7 +933,7 @@ def load_OrgImage(args, img_ids):
         org_img_list = []
         for img_id in img_ids:
             img_id = "ADE_val_" + img_id.rjust(8, '0')
-            org_image = Image.open(os.path.join("./ADEChallengeData2016/images/validation/", img_id + '.jpg')).convert(
+            org_image = Image.open(os.path.join(f"{args.home_dir}/ADEChallengeData2016/images/validation/", img_id + '.jpg')).convert(
                 'RGB')
             org_image = np.asarray(org_image)
             org_img_list.append(org_image)

@@ -858,7 +858,7 @@ def Load_predicted_classes(args, nms, cats, best_class_idx_list, class_filtered_
 
     if args.data_type == "coco_object":
         ''' GPT4o without boundary - high precision'''
-        save_path = './GPT4o_classification'
+        save_path = f'{args.home_dir}/GPT4o_classification'
         path = f"{save_path}/coco_object_classification_noboundary.json"
 
         with open(path, 'r') as f:
@@ -908,7 +908,7 @@ def Load_predicted_classes(args, nms, cats, best_class_idx_list, class_filtered_
 
     elif args.data_type == "coco_stuff":
         ''' GPT4o without boundary - high precision'''
-        save_path = './GPT4o_classification'
+        save_path = f'{args.home_dir}/GPT4o_classification'
         path = f"{save_path}/coco_stuff_classification_noboundary.json"
 
         with open(path, 'r') as f:
@@ -1131,7 +1131,7 @@ def load_OrgImage(img_ids, coco_thing):
         id_coco = int(img_ids[img])
         imgIds_thing = coco_thing.getImgIds(imgIds=[id_coco])
         path = coco_thing.loadImgs(imgIds_thing)[0]['file_name']
-        org_image = Image.open(os.path.join("./coco/images/val2017/", path)).convert('RGB')
+        org_image = Image.open(os.path.join(f"{args.home_dir}/coco/images/val2017/", path)).convert('RGB')
         org_image = np.asarray(org_image)
         org_img_list.append(org_image)
     return org_img_list

@@ -84,7 +84,7 @@ def load_ade20k(args, rank, imageDir):
 
 
     nms = ["".join(i.split(" ")) for i in cats.values()]
-    root_dataset = "./"
+    root_dataset = f"{args.home_dir}"
     list_val = f"{args.home_dir}/semantic-segmentation-pytorch-master/data/validation.odgt"
     dataset_config = Namespace(num_class=150, padding_constant=32, img_size=args.img_size)
 
