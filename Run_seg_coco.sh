@@ -1,6 +1,6 @@
 python PnP_OVSS_0514_updated_segmentation_coco.py \
   --home_dir '/home/letitiabanana/LAVIS_OG'
-  --save_path BLIP_0602_336_ADE20K_segmentation\
+  --save_path BLIP_0602_336_COCOOBJECT_segmentation\
   --master_port 29790 --gen_multiplecap_withpnpvqa label --world_size 1 \
   --img_size 336 \
   --del_patch_num sort_thresh005 \
