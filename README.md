@@ -103,7 +103,7 @@ python PnP_OVSS_0514_updated_segmentation.py \
 ### For saving the GradCAM maps and index of patches to drop for each round of Salience Drop
 For Pascal VOC, Pascal Context, and ADE20K, modify the data_type to "voc", "psc", and "ade20k" <br>
 
-run `bash `
+run `bash Run_seg.sh`
 ```
 python PnP_OVSS_0514_updated_segmentation.py \
   --home_dir \home\letitiabanana\LAVIS
@@ -121,6 +121,7 @@ python PnP_OVSS_0514_updated_segmentation.py \
 
 For COCO Object and COCO Stuff, set the data_typa argument in the bash file as "coco_object" or "coco_stuff"  <br>
 
+run `bash Run_seg_coco.sh`
 ```
 python PnP_OVSS_0514_updated_segmentation_coco.py \
   --home_dir \home\letitiabanana\LAVIS
