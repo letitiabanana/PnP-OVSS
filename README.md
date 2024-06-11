@@ -106,6 +106,7 @@ For Pascal VOC, Pascal Context, and ADE20K, modify the data_type to "voc", "psc"
 run `bash `
 ```
 python PnP_OVSS_0514_updated_segmentation.py \
+  --home_dir \home\letitiabanana\LAVIS
   --save_path BLIP_0602_336_ADE20K_segmentation\
   --master_port 29790 --gen_multiplecap_withpnpvqa label --world_size 1 \
   --img_size 336 \
@@ -122,6 +123,7 @@ For COCO Object and COCO Stuff, set the data_typa argument in the bash file as "
 
 ```
 python PnP_OVSS_0514_updated_segmentation_coco.py \
+  --home_dir \home\letitiabanana\LAVIS
   --save_path BLIP_0602_336_ADE20K_segmentation\
   --master_port 29790 --gen_multiplecap_withpnpvqa label --world_size 1 \
   --img_size 336 \
