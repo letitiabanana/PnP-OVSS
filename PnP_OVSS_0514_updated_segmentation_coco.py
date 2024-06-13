@@ -1112,7 +1112,7 @@ def Load_GroundTruth(args, img_ids, coco_thing):
         for img in range(len(img_ids)):
             name ="{:012d}".format(int(img_ids[img]))
             mask_stuff = np.float32(Image.open(
-                os.path.join("/home/letitiabanana/coco_stuff164k/annotations/val2017/",  name + '.png'))) # background=255, value = cats-1
+                os.path.join(f"{args.home_dir}/coco_stuff164k/annotations/val2017/",  name + '.png'))) # background=255, value = cats-1
             for i in range(mask_stuff.shape[0]):
                 for j in range(mask_stuff.shape[1]):
                     if mask_stuff[i][j] == 255:
