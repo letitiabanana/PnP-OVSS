@@ -307,7 +307,7 @@ def save_img_union_attention(model_textloc, imgs_in, org_img_sizes, args, gt_cla
         label_preds_withfiltering_beforeargmax = []
         best_class_idx_list = []
 
-        for img in range(args.batch_size):
+        for img in range(len(img_ids)):
                         # get the predicted label from clip(larger then top 5)
             best_class_idx_list, class_filtered_list, caption_filtered_list = Load_predicted_classes(args, nms, best_class_idx_list, class_filtered_list, caption_filtered_list, gt_class_name_list, img_ids, img, pred_path='BLIP_0514_VOC_Clip_classification')
 
