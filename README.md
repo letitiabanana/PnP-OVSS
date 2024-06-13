@@ -30,9 +30,10 @@ Download [Gradient_Free_Optimizers_master](https://github.com/SimonBlanke/Gradie
 Git clone [pydensecrf](https://github.com/lucasb-eyer/pydensecrf) and put it under LAVIS 
 
 ## Download datasets
-Pascal VOC Download dataset from [here](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html#devkit) <br>
+
 ADE20K Download dataset from [here](http://groups.csail.mit.edu/vision/datasets/ADE20K/request_data/) <br>
 May Download the following datasets following instruction from [mmsegmentation](https://github.com/open-mmlab/mmsegmentation/blob/main/docs/en/user_guides/2_dataset_prepare.md#pascal-context) <br>
+Pascal VOC <br>
 Pascal Context <br>
 COCO Object <br>
 COCO Stuff <br>
