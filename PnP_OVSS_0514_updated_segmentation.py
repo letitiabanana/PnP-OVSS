@@ -217,7 +217,8 @@ def captions_text_loc(args,  nms, model_textloc, data_loader, vis_processors_tex
 
     for batch_id, (org_img_sizes, norm_img0s, img0s, imgs_for_clip, imgs_clip_large_in, paths, img_ids, label) in tqdm(
             enumerate(metric_logger.log_every(data_loader, print_freq)), desc='VOC val captions_text_loc:'):
-        #
+        # if not "2010_005428" in img_ids:
+        #     continue
 
         print("116 batch stats", norm_img0s.shape, type(paths), img0s.shape,
               img_ids)  # torch.Size([batch_size, 384, 384, 3]), <class 'tuple'>,  torch.Size([batch_size, 3, 384, 384]),  10
@@ -245,7 +246,7 @@ def captions_text_loc(args,  nms, model_textloc, data_loader, vis_processors_tex
         imgs = img0s.detach().clone()
         imgs_in = imgs
         toc_drop = time.perf_counter()
-        print(f"Count 1 {img_ids} Time: drop image patches use {toc_drop - tic_drop:0.4f} seconds")
+        # print(f"Count 1 {img_ids} Time: drop image patches use {toc_drop - tic_drop:0.4f} seconds")
 
 
         captions = label_ascap_list
@@ -326,6 +327,18 @@ def save_img_union_attention(model_textloc, imgs_in, org_img_sizes, args, gt_cla
             perimg_filtered_average_attention_map = Mean_over_filtered_label_tokens(model_textloc, txt_tokens_filtered, gradcam_filtered, class_filtered_list, img_num)
             filtered_average_attention_map_list.append(perimg_filtered_average_attention_map)
 
+        for img, img_id in enumerate(img_ids):
+            if int(args.max_att_block_num) == 8 and int(args.prune_att_head) == 9 and img_id == "2010_005428":
+                for i, union_Att in enumerate(filtered_average_attention_map_list[img]):
+                    Path(
+                        f"{args.save_path}/Blip_reinferene_Salience_Drop/").mkdir(
+                        parents=True, exist_ok=True)
+                    gradcam_image_c = getAttMap(norm_imgs[img].cpu().numpy(),
+                                                union_Att.cpu().numpy(),
+                                                blur=True)  # range between 0-1
+                    im_gradcam_c = Image.fromarray((gradcam_image_c * 255).astype(np.uint8), 'RGB')
+                    im_gradcam_c.save(
+                        f"{args.save_path}/Blip_reinferene_Salience_Drop/drop_iter{drop_iter}_Class_{class_filtered_list[img][i]}_UnionGradcam_img_{img_id}_max_blocknum_{args.max_att_block_num}_atthead_{args.prune_att_head}.jpeg")
 
 
         '''Check Blip 2nd round pred with filtered caption'''
@@ -388,8 +401,8 @@ def save_img_union_attention(model_textloc, imgs_in, org_img_sizes, args, gt_cla
 
 
             label_preds_withfiltered_caption.append(Blip_final_pred_argmax_map)
-            Draw_Segmentation_map(args, Blip_final_pred_argmax_map, label_trues, org_img_list, img_ids, img,
-                                  filename='BLIP_1_drop')
+            # Draw_Segmentation_map(args, Blip_final_pred_argmax_map, label_trues, org_img_list, img_ids, img,
+            #                       filename='BLIP_1_drop')
 
 
         if gradcam_agg_dropfiltered is not None:
@@ -469,9 +482,9 @@ def save_img_union_attention(model_textloc, imgs_in, org_img_sizes, args, gt_cla
 
                 # for i, class_id in enumerate(class_filtered_id_list[img]):
                 #     Blip_final_pred_argmax_map_drop[Blip_final_pred_argmax_map_drop==int(i+1)] = cats[class_id]['id']
-                label_preds_withfiltered_caption_alldrop.append(Blip_final_pred_argmax_map_drop)
-                Draw_Segmentation_map(args, Blip_final_pred_argmax_map_drop, label_trues, org_img_list, img_ids, img,
-                                      filename = 'BLIP_N_drop')
+                # label_preds_withfiltered_caption_alldrop.append(Blip_final_pred_argmax_map_drop)
+                # Draw_Segmentation_map(args, Blip_final_pred_argmax_map_drop, label_trues, org_img_list, img_ids, img,
+                #                       filename = 'BLIP_N_drop')
 
 
 
@@ -694,7 +707,7 @@ def Inference_BLIP_filteredcaption(args, model_textloc, txt_tokens_filtered, img
             #                 parents=True, exist_ok=True)
             #             gradcam_image_c = getAttMap(norm_imgs_for_drop_list[drop_iter][img].cpu().numpy(),
             #                                         union_Att.cpu().numpy(),
-            #                                         blur=False)  # range between 0-1
+            #                                         blur=True)  # range between 0-1
             #             im_gradcam_c = Image.fromarray((gradcam_image_c * 255).astype(np.uint8), 'RGB')
             #             im_gradcam_c.save(
             #                 f"{args.save_path}/Blip_reinferene_Drop_check/drop_iter{drop_iter}/drop_iter{drop_iter}_Class_{class_filtered_list[img][i]}_UnionGradcam_img_{img_id}_max_blocknum_{args.max_att_block_num}_atthead_{args.prune_att_head}.jpeg")
@@ -728,33 +741,32 @@ def Load_predicted_classes(args, nms, best_class_idx_list, class_filtered_list, 
     else:
         per_img_cls = cls_result[img_ids[img]]
 
-    try:
-        per_img_cls_prb_list = per_img_cls.replace(']\n\n[', '], [').replace('],\n\n[', '], [').replace('], \n[', '], [ ').replace('],\n[', '], [ ').strip("][").split("], [")
-        # per_img_cls_list = per_img_cls_prb_list[0].split(",") # for running the first attenmpt with extra attention on the boundary objects
-        # per_img_cls_idx_list = [int(cls.split(":")[0]) for cls in per_img_cls_list] # for running the first attenmpt with extra attention on the boundary objects
+    # try:
+    per_img_cls_prb_list = per_img_cls.replace(']\n\n[', '], [').replace('],\n\n[', '], [').replace('], \n[', '], [ ').replace(']\n[', '], [ ').replace('],\n[', '], [ ').strip("][").split("], [")
+    # per_img_cls_list = per_img_cls_prb_list[0].split(",") # for running the first attenmpt with extra attention on the boundary objects
+    # per_img_cls_idx_list = [int(cls.split(":")[0]) for cls in per_img_cls_list] # for running the first attenmpt with extra attention on the boundary objects
 
-        # for running the 2nd attenmpt wo extra attention on the boundary objects
-        per_img_cls_list = per_img_cls_prb_list[0].split(",")
-        if len(per_img_cls_prb_list) == 1 and per_img_cls_prb_list[0]=='':
-            print("no output")
-            per_img_cls_list = ["1: 'wall'" for i in range(len(per_img_cls_list))]
-            per_img_prob_list = [100 for i in range(len(per_img_cls_list))]
-        # elif len(per_img_cls_prb_list) == 1 and per_img_cls_prb_list[0] !='':
-        #     print("no prob output")
-        #     per_img_prob_list = [100 for i in range(len(per_img_cls_list))]
-        else:
+    # for running the 2nd attenmpt wo extra attention on the boundary objects
+    per_img_cls_list = per_img_cls_prb_list[0].split(",")
+    if len(per_img_cls_prb_list) == 1 and per_img_cls_prb_list[0]=='':
+        print("no output")
+        per_img_cls_list = ["1: 'wall'" for i in range(len(per_img_cls_list))]
+        per_img_prob_list = [100 for i in range(len(per_img_cls_list))]
+    # elif len(per_img_cls_prb_list) == 1 and per_img_cls_prb_list[0] !='':
+    #     print("no prob output")
+    #     per_img_prob_list = [100 for i in range(len(per_img_cls_list))]
+    else:
+        per_img_prob_list = per_img_cls_prb_list[1].split(",")
+        per_img_prob_list = [int(prob.split(":")[-1].split("%")[0]) for prob in per_img_prob_list]
+        # print("regular output", per_img_cls_list, per_img_prob_list)
+    per_img_cls_idx_list = []
+    for i,prob in enumerate(per_img_prob_list):
+        if prob > 70:
+            # print("regular output", prob, int(per_img_cls_list[i].split(":")[0]))
+            per_img_cls_idx_list.append(int(per_img_cls_list[i].split(":")[0]))
 
-            per_img_prob_list = per_img_cls_prb_list[1].split(",")
-            per_img_prob_list = [int(prob.split(":")[-1].split("%")[0]) for prob in per_img_prob_list]
-            # print("regular output", per_img_cls_list, per_img_prob_list)
-        per_img_cls_idx_list = []
-        for i,prob in enumerate(per_img_prob_list):
-            if prob > 70:
-                # print("regular output", prob, int(per_img_cls_list[i].split(":")[0]))
-                per_img_cls_idx_list.append(int(per_img_cls_list[i].split(":")[0]))
-
-    except:
-        breakpoint()
+    # except:
+    #     breakpoint()
 
     best_class_idx = []
     cls_filtered = []
@@ -768,7 +780,7 @@ def Load_predicted_classes(args, nms, best_class_idx_list, class_filtered_list, 
     best_class_idx_list.append(best_class_idx)
     class_filtered_list.append(cls_filtered)
     caption_filtered_list.append("A picture of " + " ".join(cls_filtered))
-    print(891, img_ids[img], gt_class_name_list[img], cls_filtered)
+    # print(891, img_ids[img], gt_class_name_list[img], cls_filtered)
 
 
     return best_class_idx_list, class_filtered_list, caption_filtered_list
@@ -988,7 +1000,7 @@ def SquarePad(image):
 # #### Blur + CRF
 def postprocess(args, final_pred_wbackground, org_img_list, label_trues, img):
     if "blur" in args.postprocess and "crf" in args.postprocess:
-        print("blurring+crfing")
+        # print("blurring+crfing")
         final_pred_wbackground_blur_list = []
         for i in range(final_pred_wbackground.shape[0]):
             final_pred_wbackground_blur = torch.from_numpy(

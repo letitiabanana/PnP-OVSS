@@ -255,7 +255,7 @@ def captions_text_loc(args, coco_thing, coco_stuff, nms, model_textloc, data_loa
         imgs = img0s.detach().clone()
         imgs_in = imgs
         toc_drop = time.perf_counter()
-        print(f"Count 1 {img_ids} Time: drop image patches use {toc_drop - tic_drop:0.4f} seconds")
+        # print(f"Count 1 {img_ids} Time: drop image patches use {toc_drop - tic_drop:0.4f} seconds")
 
 
 
@@ -344,7 +344,7 @@ def save_img_union_attention(coco_thing, model_textloc, imgs_in, org_img_sizes, 
         model_textloc.module.text_encoder.base_model.base_model.encoder.layer[
             block_num
         ].crossattention.self.save_attention = False
-    with (torch.inference_mode()):
+    with torch.inference_mode():
 
         '''Load OG image for denseCRF'''
 
@@ -388,6 +388,7 @@ def save_img_union_attention(coco_thing, model_textloc, imgs_in, org_img_sizes, 
                                                          max_length=500,
                                                          return_tensors="pt").to(rank)
     gradcam_0_filtered, gradcam_agg_dropfiltered = Inference_BLIP_filteredcaption(args, model_textloc, txt_tokens_filtered, imgs_in, norm_imgs, img_ids, caption_filtered_list, class_filtered_list, rank)
+
 
     with torch.inference_mode():
         '''for BLIP 1 drop reinference '''
@@ -904,7 +905,7 @@ def Load_predicted_classes(args, nms, cats, best_class_idx_list, class_filtered_
         best_class_idx_list.append(best_class_idx)
         class_filtered_list.append(cls_filtered)
         caption_filtered_list.append("A picture of " + " ".join(cls_filtered))
-        print(891, img_ids[img], gt_class_name_list[img], cls_filtered)
+        # print(891, img_ids[img], gt_class_name_list[img], cls_filtered)
 
     elif args.data_type == "coco_stuff":
         ''' GPT4o without boundary - high precision'''
@@ -1183,7 +1184,7 @@ def SquarePad(image):
 # #### Blur + CRF
 def postprocess(args, final_pred_wbackground, org_img_list, label_trues, img):
     if "blur" in args.postprocess and "crf" in args.postprocess:
-        print("blurring+crfing")
+        # print("blurring+crfing")
         final_pred_wbackground_blur_list = []
         for i in range(final_pred_wbackground.shape[0]):
             final_pred_wbackground_blur = torch.from_numpy(
@@ -1193,10 +1194,10 @@ def postprocess(args, final_pred_wbackground, org_img_list, label_trues, img):
         final_pred_wbackground = torch.stack(final_pred_wbackground_blur_list, axis=0)
         final_pred_argmax_map = densecrf(org_img_list[img], final_pred_wbackground)
     elif "crf" in args.postprocess and not "blur" in args.postprocess:
-        print("crfing")
+        # print("crfing")
         final_pred_argmax_map = densecrf(org_img_list[img], final_pred_wbackground)
     elif "blur" in args.postprocess and not "crf" in args.postprocess:
-        print("blurring")
+        # print("blurring")
         final_pred_wbackground_blur_list = []
         for i in range(final_pred_wbackground.shape[0]):
             final_pred_wbackground_blur = torch.from_numpy(
@@ -1466,6 +1467,7 @@ def Search(para):
         if batch_text_input_clip[0][0] == "No gt class for the image":
             print("1431 No gt class for the image")
             continue
+
 
 
         sum_std_dict_path = f"Token_Contrast/max_att_block_num{args.max_att_block_num}_atthead{args.prune_att_head}_withatt{int(args.final_att_threshold * 100)}/Token_contrast_sum/img_{img_ids[0]}.json"
