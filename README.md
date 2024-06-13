@@ -31,11 +31,11 @@ Git clone [pydensecrf](https://github.com/lucasb-eyer/pydensecrf) and put it und
 
 ## Download datasets
 
-ADE20K Download dataset from [here](http://groups.csail.mit.edu/vision/datasets/ADE20K/request_data/) <br>
+ADE20K can be downloaded from [here](http://groups.csail.mit.edu/vision/datasets/ADE20K/request_data/) <br>
+COCO Object can be downloaded from [here](https://cocodataset.org/#download)  <br>
 May Download the following datasets following instruction from [mmsegmentation](https://github.com/open-mmlab/mmsegmentation/blob/main/docs/en/user_guides/2_dataset_prepare.md#pascal-context) <br>
 Pascal VOC <br>
 Pascal Context <br>
-COCO Object <br>
 COCO Stuff <br>
 
 
