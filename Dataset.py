@@ -1559,7 +1559,7 @@ class CocoDetection_GPT(data.Dataset):
 
         img_path = os.path.join(self.root, path)
         name = "{:012d}".format(int(img_id))
-        segm_path = os.path.join("/home/letitiabanana/coco_stuff164k/annotations/val2017/", name + '.png')
+        segm_path = os.path.join(f"{self.args.home_dir}/coco_stuff164k/annotations/val2017/", name + '.png')
 
         return  img_path, segm_path
 
