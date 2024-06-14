@@ -478,11 +478,12 @@ def save_img_union_attention(model_textloc, imgs_in, org_img_sizes, args, gt_cla
                         for i in range(len(best_class_idx_list[img]) - 1, -1, -1):
                             Blip_final_pred_argmax_map_drop[Blip_final_pred_argmax_map_drop == int(i)] = best_class_idx_list[img][
                                                                                                    i] + 1
+                label_preds_withfiltered_caption_alldrop.append(Blip_final_pred_argmax_map_drop)
 
 
                 # for i, class_id in enumerate(class_filtered_id_list[img]):
                 #     Blip_final_pred_argmax_map_drop[Blip_final_pred_argmax_map_drop==int(i+1)] = cats[class_id]['id']
-                # label_preds_withfiltered_caption_alldrop.append(Blip_final_pred_argmax_map_drop)
+                
                 # Draw_Segmentation_map(args, Blip_final_pred_argmax_map_drop, label_trues, org_img_list, img_ids, img,
                 #                       filename = 'BLIP_N_drop')
 
