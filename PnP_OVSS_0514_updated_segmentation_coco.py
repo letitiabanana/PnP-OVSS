@@ -394,7 +394,7 @@ def save_img_union_attention(coco_thing, model_textloc, imgs_in, org_img_sizes, 
         '''for BLIP 1 drop reinference '''
         # '''Merge tokens and Draw attention maps of filtered calsses -- per image base as we now have differnet captions'''
         filtered_average_attention_map_list = []
-        for img_num, gradcam_filtered in enumerate(gradcam_agg_dropfiltered): #[0][0] stands for getting 8th layer 9th head
+        for img_num, gradcam_filtered in enumerate(gradcam_0_filtered): #[0][0] stands for getting 8th layer 9th head
             perimg_filtered_average_attention_map = Mean_over_filtered_label_tokens(model_textloc, txt_tokens_filtered, gradcam_filtered, class_filtered_list, img_num)
             filtered_average_attention_map_list.append(perimg_filtered_average_attention_map)
 
