@@ -1,6 +1,6 @@
 # Code Implementation for CVPR2024 PAPER -- Emergent Open-Vocabulary Semantic Segmentation from Off-the-shelf Vision-Language Models (PnP-OVSS)
 
-:exclamation: This is the updated verision of PnP-OVSS with the bug corrected. Please refer to our latest arxiv version of the paper for the updated results and procedures. Only the code for PnP-OVSS + BLIP is provided here. Will update BridgeTower shortly.
+:exclamation: This is the updated verision of PnP-OVSS with the bug corrected. Please refer to our [latest arxiv version](https://arxiv.org/abs/2311.17095)of the paper for the updated results and procedures. Only the code for PnP-OVSS + BLIP is provided here. Will update BridgeTower shortly.
 
 ## System 
 CUDA Version: 11.7  <br>
@@ -157,8 +157,7 @@ For modifying image size, you may also need to modify the image size in /home/us
 @article{luo2023emergent,
   title={Emergent Open-Vocabulary Semantic Segmentation from Off-the-shelf Vision-Language Models},
   author={Luo, Jiayun and Khandelwal, Siddhesh and Sigal, Leonid and Li, Boyang},
-  journal={arXiv e-prints},
-  pages={arXiv--2311},
+  journal={arXiv e-prints 2311.17095},
   year={2023}
 }
 ```
